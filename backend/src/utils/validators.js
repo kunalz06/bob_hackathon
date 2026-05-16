@@ -49,14 +49,13 @@ function isValidUUID(id) {
  */
 function isValidArtifactType(type) {
   const validTypes = [
-    'prd',
-    'architecture',
-    'schema',
-    'api',
     'frontend',
-    'tests',
+    'backend',
+    'test',
+    'documentation',
+    'configuration',
     'deployment',
-    'bobPrompt'
+    'database'
   ];
   return validTypes.includes(type);
 }

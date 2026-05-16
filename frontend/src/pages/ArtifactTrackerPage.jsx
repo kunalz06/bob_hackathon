@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import SectionCard from '../components/SectionCard';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { getArtifacts, createArtifact } from '../api/client';
+import { getArtifacts, createArtifact, deleteArtifact } from '../api/client';
 
 function ArtifactTrackerPage() {
   const [artifacts, setArtifacts] = useState([]);
@@ -12,10 +12,13 @@ function ArtifactTrackerPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [formData, setFormData] = useState({
+    projectName: '',
     filePath: '',
+    artifactType: 'frontend',
     purpose: '',
-    bobSession: '',
-    status: 'completed'
+    bobSessionFile: '',
+    status: 'completed',
+    notes: ''
   });
 
   useEffect(() => {
@@ -26,8 +29,8 @@ function ArtifactTrackerPage() {
     setLoading(true);
     setError('');
     try {
-      const data = await getArtifacts();
-      setArtifacts(data);
+      const response = await getArtifacts();
+      setArtifacts(response.artifacts || []);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -46,8 +49,8 @@ function ArtifactTrackerPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.filePath.trim() || !formData.purpose.trim()) {
-      setError('File path and purpose are required');
+    if (!formData.projectName.trim() || !formData.filePath.trim() || !formData.purpose.trim()) {
+      setError('Project name, file path, and purpose are required');
       return;
     }
 
@@ -59,20 +62,37 @@ function ArtifactTrackerPage() {
       await createArtifact(formData);
       setSuccess('Artifact added successfully!');
       setFormData({
+        projectName: '',
         filePath: '',
+        artifactType: 'frontend',
         purpose: '',
-        bobSession: '',
-        status: 'completed'
+        bobSessionFile: '',
+        status: 'completed',
+        notes: ''
       });
       setShowForm(false);
       await loadArtifacts();
       
-      // Clear success message after 3 seconds
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
       setError(err.message);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this artifact?')) {
+      return;
+    }
+
+    try {
+      await deleteArtifact(id);
+      setSuccess('Artifact deleted successfully!');
+      await loadArtifacts();
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err) {
+      setError(err.message);
     }
   };
 
@@ -85,9 +105,29 @@ function ArtifactTrackerPage() {
     return styles[status] || styles.pending;
   };
 
+  const getTypeBadge = (type) => {
+    const styles = {
+      frontend: 'bg-blue-100 text-blue-800',
+      backend: 'bg-purple-100 text-purple-800',
+      test: 'bg-green-100 text-green-800',
+      documentation: 'bg-yellow-100 text-yellow-800',
+      configuration: 'bg-gray-100 text-gray-800',
+      deployment: 'bg-red-100 text-red-800',
+      database: 'bg-indigo-100 text-indigo-800'
+    };
+    return styles[type] || styles.configuration;
+  };
+
+  // Calculate summary statistics
+  const totalArtifacts = artifacts.length;
+  const frontendArtifacts = artifacts.filter(a => a.artifactType === 'frontend').length;
+  const backendArtifacts = artifacts.filter(a => a.artifactType === 'backend').length;
+  const testArtifacts = artifacts.filter(a => a.artifactType === 'test').length;
+  const documentationArtifacts = artifacts.filter(a => a.artifactType === 'documentation').length;
+
   return (
     <Layout>
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-800 mb-2">
@@ -112,6 +152,40 @@ function ArtifactTrackerPage() {
           </div>
         )}
 
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+          <div className="card bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-blue-600">{totalArtifacts}</div>
+              <div className="text-sm text-gray-600 mt-1">Total Artifacts</div>
+            </div>
+          </div>
+          <div className="card bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-purple-600">{frontendArtifacts}</div>
+              <div className="text-sm text-gray-600 mt-1">Frontend</div>
+            </div>
+          </div>
+          <div className="card bg-gradient-to-br from-indigo-50 to-indigo-100 border-indigo-200">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-indigo-600">{backendArtifacts}</div>
+              <div className="text-sm text-gray-600 mt-1">Backend</div>
+            </div>
+          </div>
+          <div className="card bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-green-600">{testArtifacts}</div>
+              <div className="text-sm text-gray-600 mt-1">Tests</div>
+            </div>
+          </div>
+          <div className="card bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-yellow-600">{documentationArtifacts}</div>
+              <div className="text-sm text-gray-600 mt-1">Documentation</div>
+            </div>
+          </div>
+        </div>
+
         {/* Add Artifact Button */}
         <div className="mb-6">
           <button
@@ -126,6 +200,44 @@ function ArtifactTrackerPage() {
         {showForm && (
           <SectionCard title="Add New Artifact" className="mb-6">
             <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Project Name *
+                  </label>
+                  <input
+                    type="text"
+                    name="projectName"
+                    className="input-field w-full"
+                    placeholder="e.g., smart-attendance-demo"
+                    value={formData.projectName}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Artifact Type *
+                  </label>
+                  <select
+                    name="artifactType"
+                    className="input-field w-full"
+                    value={formData.artifactType}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    <option value="frontend">Frontend</option>
+                    <option value="backend">Backend</option>
+                    <option value="test">Test</option>
+                    <option value="documentation">Documentation</option>
+                    <option value="configuration">Configuration</option>
+                    <option value="deployment">Deployment</option>
+                    <option value="database">Database</option>
+                  </select>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   File Path *
@@ -156,34 +268,50 @@ function ArtifactTrackerPage() {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Bob Session
-                </label>
-                <input
-                  type="text"
-                  name="bobSession"
-                  className="input-field w-full"
-                  placeholder="e.g., frontend-implementation-2024-01-15"
-                  value={formData.bobSession}
-                  onChange={handleInputChange}
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Bob Session Report Filename
+                  </label>
+                  <input
+                    type="text"
+                    name="bobSessionFile"
+                    className="input-field w-full"
+                    placeholder="e.g., frontend-implementation-2024-01-15.md"
+                    value={formData.bobSessionFile}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Status
+                  </label>
+                  <select
+                    name="status"
+                    className="input-field w-full"
+                    value={formData.status}
+                    onChange={handleInputChange}
+                  >
+                    <option value="completed">Completed</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="pending">Pending</option>
+                  </select>
+                </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Status
+                  Notes
                 </label>
-                <select
-                  name="status"
+                <textarea
+                  name="notes"
                   className="input-field w-full"
-                  value={formData.status}
+                  rows="3"
+                  placeholder="Additional notes about this artifact..."
+                  value={formData.notes}
                   onChange={handleInputChange}
-                >
-                  <option value="completed">Completed</option>
-                  <option value="in-progress">In Progress</option>
-                  <option value="pending">Pending</option>
-                </select>
+                />
               </div>
 
               <div className="flex gap-3">
@@ -232,7 +360,13 @@ function ArtifactTrackerPage() {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Project
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       File Path
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Type
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Purpose
@@ -243,28 +377,52 @@ function ArtifactTrackerPage() {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
                     </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {artifacts.map((artifact, index) => (
-                    <tr key={artifact.id || index} className="hover:bg-gray-50">
+                  {artifacts.map((artifact) => (
+                    <tr key={artifact.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">
+                          {artifact.projectName}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
                         <code className="text-sm text-blue-600 bg-blue-50 px-2 py-1 rounded">
                           {artifact.filePath}
                         </code>
                       </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getTypeBadge(artifact.artifactType)}`}>
+                          {artifact.artifactType}
+                        </span>
+                      </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900">{artifact.purpose}</div>
+                        <div className="text-sm text-gray-900 max-w-xs truncate" title={artifact.purpose}>
+                          {artifact.purpose}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-600">
-                          {artifact.bobSession || '-'}
+                          {artifact.bobSessionFile || '-'}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadge(artifact.status)}`}>
                           {artifact.status}
                         </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <button
+                          onClick={() => handleDelete(artifact.id)}
+                          className="text-red-600 hover:text-red-900"
+                          title="Delete artifact"
+                        >
+                          🗑️
+                        </button>
                       </td>
                     </tr>
                   ))}

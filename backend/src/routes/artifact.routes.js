@@ -20,6 +20,12 @@ router.get('/', artifactController.getAllArtifacts);
  */
 router.get('/:id', artifactController.getArtifactById);
 
+/**
+ * DELETE /api/artifacts/:id
+ * Delete artifact by ID
+ */
+router.delete('/:id', artifactController.deleteArtifact);
+
 module.exports = router;
 
 // Made with Bob

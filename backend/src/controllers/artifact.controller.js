@@ -5,23 +5,41 @@ const artifactService = require('../services/artifact.service');
  */
 async function createArtifact(req, res) {
   try {
-    const { projectId, type, content } = req.body;
+    const {
+      projectName,
+      filePath,
+      artifactType,
+      purpose,
+      createdBy,
+      bobSessionFile,
+      status,
+      notes
+    } = req.body;
 
-    if (!projectId || !type || !content) {
+    if (!projectName || !filePath || !artifactType || !purpose) {
       return res.status(400).json({
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
-          message: 'Missing required fields: projectId, type, content'
+          message: 'Missing required fields: projectName, filePath, artifactType, purpose'
         }
       });
     }
 
-    const artifact = await artifactService.createArtifact({ projectId, type, content });
+    const artifact = await artifactService.createArtifact({
+      projectName,
+      filePath,
+      artifactType,
+      purpose,
+      createdBy,
+      bobSessionFile,
+      status,
+      notes
+    });
 
     res.status(201).json({
       success: true,
-      artifactId: artifact.artifactId,
+      id: artifact.id,
       artifact
     });
   } catch (error) {
@@ -42,8 +60,8 @@ async function createArtifact(req, res) {
  */
 async function getAllArtifacts(req, res) {
   try {
-    const { projectId } = req.query;
-    const artifacts = await artifactService.getAllArtifacts(projectId);
+    const { projectName } = req.query;
+    const artifacts = await artifactService.getAllArtifacts(projectName);
 
     res.json({
       success: true,
@@ -97,10 +115,46 @@ async function getArtifactById(req, res) {
   }
 }
 
+/**
+ * Delete artifact by ID
+ */
+async function deleteArtifact(req, res) {
+  try {
+    const { id } = req.params;
+    const deleted = await artifactService.deleteArtifact(id);
+
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          code: 'NOT_FOUND',
+          message: 'Artifact not found'
+        }
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Artifact deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting artifact:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'DELETE_ERROR',
+        message: 'Failed to delete artifact',
+        details: error.message
+      }
+    });
+  }
+}
+
 module.exports = {
   createArtifact,
   getAllArtifacts,
-  getArtifactById
+  getArtifactById,
+  deleteArtifact
 };
 
 // Made with Bob

@@ -129,7 +129,7 @@ async function readArtifacts(projectId = null) {
  */
 async function readArtifactById(id) {
   const artifacts = await readArtifacts();
-  return artifacts.find(a => a.artifactId === id) || null;
+  return artifacts.find(a => a.id === id) || null;
 }
 
 /**
@@ -151,7 +151,7 @@ async function saveArtifact(artifact) {
  */
 async function deleteArtifact(id) {
   const artifacts = await readArtifacts();
-  const filtered = artifacts.filter(a => a.artifactId !== id);
+  const filtered = artifacts.filter(a => a.id !== id);
   
   if (filtered.length === artifacts.length) {
     return false;

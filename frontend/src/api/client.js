@@ -83,6 +83,15 @@ export const createArtifact = async (artifact) => {
   }
 };
 
+export const deleteArtifact = async (id) => {
+  try {
+    const response = await api.delete(`/api/artifacts/${id}`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.error || 'Failed to delete artifact');
+  }
+};
+
 export default api;
 
 // Made with Bob
