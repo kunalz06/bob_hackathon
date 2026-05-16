@@ -2,88 +2,33 @@
 
 This file provides guidance to agents when working with code in this repository.
 
-## Project: BobForge - AI App Factory for IBM Bob Hackathon
+## Non-Obvious Project Patterns
 
-**Critical Goal**: Demonstrate IBM Bob as a full SDLC build partner. Every major development stage must generate an IBM Bob session report saved to [`bob_sessions/`](bob_sessions/).
+### Test Configuration (Critical)
+- Jest runs with `maxWorkers: 1` (sequential only) to prevent file corruption from parallel writes to JSON storage
+- Tests use port 3002 (not 3000) to avoid conflicts with dev server
+- Test files in `__tests__/` directory, NOT colocated with source (contradicts other documentation)
 
-## Tech Stack
-- Frontend: React + Vite + Tailwind CSS
-- Backend: Node.js + Express
-- Storage: Local JSON files (MVP), SQLite (optional later)
-- Export: Markdown and JSON formats
+### Storage Implementation
+- Uses `sanitizePath()` in [`storage.service.js`](backend/src/services/storage.service.js) to prevent directory traversal - all file paths MUST go through this
+- JSON files in [`backend/src/data/`](backend/src/data/) are the actual database (blueprints.json, artifacts.json)
+- Storage service auto-creates directories and initializes empty JSON arrays if files missing
 
-## Directory Structure
-```
-frontend/          # React + Vite UI
-backend/           # Express API + generator modules
-docs/              # Project documentation
-bob_sessions/      # IBM Bob interaction evidence (REQUIRED for hackathon)
-generated_projects/# Output from blueprint generator
-sample_blueprints/ # Example blueprints for testing
-exports/           # Markdown/JSON exports
-```
+### Generator Context Pattern
+- Generators receive accumulated context object from ALL previous generators
+- Each generator adds its output to context and returns enhanced context
+- Context flows: idea → prd → architecture → schema → api → frontend → tests → deployment → bobPrompt → githubIssues
+- Generators validate context has required fields from previous steps (e.g., PRD checks `context.idea.processed`)
 
-## Core Modules (Backend)
-1. Idea input processor
-2. Blueprint generator (orchestrator)
-3. PRD generator
-4. Architecture generator
-5. Database schema generator
-6. API plan generator
-7. Frontend page plan generator
-8. Test plan generator
-9. Deployment checklist generator
-10. IBM Bob build prompt generator
-11. Artifact tracker
-12. IBM Bob evidence dashboard
-13. Markdown export engine
+### IBM Bob Evidence Requirement
+- This is a hackathon project - IBM Bob session reports in [`bob_sessions/`](bob_sessions/) are REQUIRED for judging
+- Every development phase must generate timestamped session report: `{timestamp}-{phase}.md`
+- Dashboard must aggregate these to prove IBM Bob's SDLC involvement
 
-## Development Rules
-
-**Backend Architecture**:
-- Keep generator logic in separate files under [`backend/generators/`](backend/generators/)
-- Each generator module should be independently testable
-- Use modular design - no monolithic files
-
-**Security & Configuration**:
-- NEVER commit `.env` files
-- Use `.env.example` for template only
-- No hardcoded secrets or API keys
-- No paid APIs for MVP (use free/local alternatives)
-
-**Error Handling**:
-- Add validation for all user inputs
-- Implement error handling in all generator functions
-- Return structured error responses from API endpoints
-
-**Testing**:
-- Write simple unit tests for backend generator functions
-- Test files should be colocated with source in [`backend/generators/`](backend/generators/)
-
-**UI Standards**:
-- Professional, enterprise-style design
-- Use Tailwind CSS utility classes
-- Responsive design required
-
-**IBM Bob Integration** (CRITICAL):
-- Every major development milestone must be documented
-- Save IBM Bob session reports to [`bob_sessions/`](bob_sessions/)
-- Include: planning sessions, code generation, refactoring, testing, documentation
-- Dashboard must display IBM Bob's contributions across SDLC phases
-
-## Build/Run Commands
+### Commands
 ```bash
-# Frontend
-cd frontend && npm install && npm run dev
-
-# Backend
-cd backend && npm install && npm start
-
-# Tests
+# Backend tests (must run from backend/ directory)
 cd backend && npm test
-```
 
-## Export Format
-- Blueprints export as both Markdown (human-readable) and JSON (machine-readable)
-- Include all generated artifacts: PRD, architecture, schemas, API plans, test plans
-- IBM Bob build prompt must be copyable from export
+# Single test file
+cd backend && npm test -- artifact.test.js

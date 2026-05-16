@@ -1,50 +1,28 @@
 # Code Mode Rules - BobForge
 
-## Backend Generator Architecture
-- Each generator in [`backend/generators/`](../../backend/generators/) must be a pure function
-- Generators return structured objects, not strings (orchestrator handles formatting)
-- All generators must accept a `context` object containing previous generator outputs
+## Non-Obvious Patterns (Code-Specific)
 
-## Module Dependencies
-- Blueprint generator orchestrates all other generators in sequence
-- Each generator can access outputs from previous generators via context
-- Dependency order: Idea → PRD → Architecture → Schema → API → Frontend → Tests → Deployment
+### Storage Safety
+- ALL file paths must go through `sanitizePath()` in [`storage.service.js`](../../backend/src/services/storage.service.js) - prevents directory traversal
+- JSON files in [`backend/src/data/`](../../backend/src/data/) are the database (blueprints.json, artifacts.json)
+- Storage auto-creates missing directories and initializes empty arrays
 
-## File Organization
-- Generator modules: [`backend/generators/`](../../backend/generators/)
-- Test files colocated: `generatorName.js` + `generatorName.test.js`
-- Shared utilities: [`backend/utils/`](../../backend/utils/)
-- API routes: [`backend/routes/`](../../backend/routes/)
+### Generator Context Flow
+- Each generator receives accumulated context from ALL previous generators
+- Must validate required fields from previous steps (e.g., PRD checks `context.idea.processed`)
+- Return enhanced context with new artifact added
+- Dependency chain: idea → prd → architecture → schema → api → frontend → tests → deployment → bobPrompt → githubIssues
 
-## Error Handling Pattern
-```javascript
-// All generators must follow this pattern
-try {
-  // validation
-  if (!input) throw new Error('Missing required input');
-  // generation logic
-  return { success: true, data: result };
-} catch (error) {
-  return { success: false, error: error.message };
-}
-```
+### Test Configuration
+- Tests run sequentially (`maxWorkers: 1` in jest.config.js) to prevent JSON file corruption
+- Test files in `__tests__/` directory (NOT colocated despite what docs say)
+- Tests use port 3002 to avoid dev server conflicts
+- Run from backend directory: `cd backend && npm test`
 
-## Storage Conventions
-- Generated blueprints: [`generated_projects/{projectId}/blueprint.json`](../../generated_projects/)
-- IBM Bob sessions: [`bob_sessions/{timestamp}-{phase}.md`](../../bob_sessions/)
-- Exports: [`exports/{projectId}/`](../../exports/) (both .md and .json)
-
-## Testing Requirements
-- Each generator must have unit tests
-- Mock external dependencies (no real file I/O in tests)
-- Test both success and error cases
-- Run tests: `cd backend && npm test`
-
-## IBM Bob Evidence
-- Every code generation session must be documented
-- Save session reports with timestamps and phase names
-- Include: prompt used, code generated, iterations, final result
-- Dashboard must aggregate all session data from [`bob_sessions/`](../../bob_sessions/)
+### IBM Bob Evidence
+- Session reports in [`bob_sessions/`](../../bob_sessions/) are REQUIRED for hackathon judging
+- Format: `{timestamp}-{phase}.md`
+- Dashboard aggregates these to prove IBM Bob's SDLC involvement
 
 ## No Access
 - MCP tools not available in Code mode

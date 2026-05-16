@@ -1,43 +1,26 @@
 const crypto = require('crypto');
 const storageService = require('./storage.service');
-const { isValidArtifactType } = require('../utils/validators');
+const { validateArtifact } = require('../utils/validators');
+const { ValidationError, NotFoundError } = require('../utils/errors');
 
 /**
  * Create a new artifact
- * @param {Object} data - Artifact data
+ * @param {Object} artifactData - Artifact data
  * @returns {Promise<Object>} Created artifact
+ * @throws {ValidationError} If validation fails
  */
-async function createArtifact(data) {
-  const {
-    projectName,
-    filePath,
-    artifactType,
-    purpose,
-    createdBy = 'IBM Bob',
-    bobSessionFile,
-    status = 'completed',
-    notes
-  } = data;
-
-  if (!projectName || !filePath || !artifactType || !purpose) {
-    throw new Error('Missing required fields: projectName, filePath, artifactType, purpose');
-  }
-
-  if (!isValidArtifactType(artifactType)) {
-    throw new Error(`Invalid artifact type: ${artifactType}`);
+async function createArtifact(artifactData) {
+  // Validate artifact data
+  const validation = validateArtifact(artifactData);
+  if (!validation.isValid) {
+    throw new ValidationError(validation.errors.join(', '));
   }
 
   const artifact = {
     id: crypto.randomUUID(),
-    projectName,
-    filePath,
-    artifactType,
-    purpose,
-    createdBy,
-    bobSessionFile: bobSessionFile || null,
-    status,
-    notes: notes || null,
-    createdAt: new Date().toISOString()
+    ...artifactData,
+    createdAt: new Date().toISOString(),
+    status: artifactData.status || 'active'
   };
 
   await storageService.saveArtifact(artifact);
@@ -45,8 +28,8 @@ async function createArtifact(data) {
 }
 
 /**
- * Get all artifacts, optionally filtered by project
- * @param {string} projectId - Optional project ID filter
+ * Get all artifacts, optionally filtered by project name
+ * @param {string} projectName - Optional project name filter
  * @returns {Promise<Array>} Array of artifacts
  */
 async function getAllArtifacts(projectName = null) {
@@ -62,20 +45,33 @@ async function getAllArtifacts(projectName = null) {
 /**
  * Get artifact by ID
  * @param {string} id - Artifact ID
- * @returns {Promise<Object|null>} Artifact or null
+ * @returns {Promise<Object>} Artifact object
+ * @throws {NotFoundError} If artifact not found
  */
 async function getArtifactById(id) {
-  const artifacts = await storageService.readArtifacts();
-  return artifacts.find(a => a.id === id) || null;
+  const artifact = await storageService.readArtifactById(id);
+  
+  if (!artifact) {
+    throw new NotFoundError('Artifact');
+  }
+  
+  return artifact;
 }
 
 /**
  * Delete artifact by ID
  * @param {string} id - Artifact ID
  * @returns {Promise<boolean>} True if deleted
+ * @throws {NotFoundError} If artifact not found
  */
 async function deleteArtifact(id) {
-  return await storageService.deleteArtifact(id);
+  const deleted = await storageService.deleteArtifact(id);
+  
+  if (!deleted) {
+    throw new NotFoundError('Artifact');
+  }
+  
+  return true;
 }
 
 module.exports = {

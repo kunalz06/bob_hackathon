@@ -10,13 +10,46 @@ const deploymentPlanGenerator = require('../generators/deploymentPlanGenerator')
 const bobPromptGenerator = require('../generators/bobPromptGenerator');
 const githubIssuesGenerator = require('../generators/githubIssuesGenerator');
 const { slugify } = require('../utils/slugify');
+const { GeneratorError, ValidationError } = require('../utils/errors');
+
+/**
+ * Execute a generator with error handling
+ * @param {Object} generator - Generator module with generate function
+ * @param {string} generatorName - Name of generator for error messages
+ * @param {Object} context - Context object to pass to generator
+ * @returns {Promise<Object>} Updated context
+ * @throws {GeneratorError} If generation fails
+ */
+async function executeGenerator(generator, generatorName, context) {
+  try {
+    if (!generator || typeof generator.generate !== 'function') {
+      throw new Error(`Invalid generator: ${generatorName}`);
+    }
+    
+    const result = await generator.generate(context);
+    
+    if (!result) {
+      throw new Error(`No output produced`);
+    }
+    
+    return result;
+  } catch (error) {
+    throw new GeneratorError(error.message, generatorName);
+  }
+}
 
 /**
  * Generate complete blueprint from idea
  * @param {string} idea - User's idea input
  * @returns {Promise<Object>} Complete blueprint
+ * @throws {ValidationError} If idea is invalid
+ * @throws {GeneratorError} If any generator fails
  */
 async function generateBlueprint(idea) {
+  if (!idea || typeof idea !== 'string' || idea.trim().length === 0) {
+    throw new ValidationError('Idea is required and must be a non-empty string');
+  }
+
   const startTime = Date.now();
   
   try {
@@ -32,31 +65,31 @@ async function generateBlueprint(idea) {
 
     // Execute generator pipeline sequentially
     console.log('1/9 Generating PRD...');
-    context = await prdGenerator.generate(context);
+    context = await executeGenerator(prdGenerator, 'PRD', context);
     
     console.log('2/9 Generating Architecture...');
-    context = await architectureGenerator.generate(context);
+    context = await executeGenerator(architectureGenerator, 'Architecture', context);
     
     console.log('3/9 Generating Database Schema...');
-    context = await schemaGenerator.generate(context);
+    context = await executeGenerator(schemaGenerator, 'Schema', context);
     
     console.log('4/9 Generating API Plan...');
-    context = await apiPlanGenerator.generate(context);
+    context = await executeGenerator(apiPlanGenerator, 'API Plan', context);
     
     console.log('5/9 Generating Frontend Plan...');
-    context = await frontendPlanGenerator.generate(context);
+    context = await executeGenerator(frontendPlanGenerator, 'Frontend Plan', context);
     
     console.log('6/9 Generating Test Plan...');
-    context = await testPlanGenerator.generate(context);
+    context = await executeGenerator(testPlanGenerator, 'Test Plan', context);
     
     console.log('7/9 Generating Deployment Plan...');
-    context = await deploymentPlanGenerator.generate(context);
+    context = await executeGenerator(deploymentPlanGenerator, 'Deployment Plan', context);
     
     console.log('8/9 Generating GitHub Issues...');
-    context = await githubIssuesGenerator.generate(context);
+    context = await executeGenerator(githubIssuesGenerator, 'GitHub Issues', context);
     
     console.log('9/9 Generating IBM Bob Prompt...');
-    context = await bobPromptGenerator.generate(context);
+    context = await executeGenerator(bobPromptGenerator, 'Bob Prompt', context);
 
     // Generate clean project name
     const projectName = generateProjectName(context.idea.processed.title);

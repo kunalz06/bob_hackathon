@@ -1,69 +1,207 @@
 /**
- * Validate idea input
- * @param {string} idea - User's idea input
+ * Input validation utilities
+ * Provides comprehensive validation and sanitization for all user inputs
+ */
+
+const { VALIDATION } = require('../config/constants');
+
+/**
+ * Sanitize string input by trimming, removing null bytes, and dangerous characters
+ * @param {string} input - Input string to sanitize
+ * @returns {string} Sanitized string
+ */
+function sanitizeString(input) {
+  if (typeof input !== 'string') return '';
+  
+  // Remove null bytes, control characters, and trim
+  return input
+    .replace(/\0/g, '')
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
+    .trim();
+}
+
+/**
+ * Validate and sanitize object recursively
+ * @param {*} obj - Object to sanitize
+ * @param {number} maxDepth - Maximum recursion depth
+ * @returns {*} Sanitized object
+ */
+function sanitizeObject(obj, maxDepth = 10) {
+  if (maxDepth <= 0) return null;
+  
+  if (obj === null || obj === undefined) return obj;
+  
+  if (typeof obj === 'string') {
+    return sanitizeString(obj);
+  }
+  
+  if (Array.isArray(obj)) {
+    return obj.map(item => sanitizeObject(item, maxDepth - 1));
+  }
+  
+  if (typeof obj === 'object') {
+    const sanitized = {};
+    for (const [key, value] of Object.entries(obj)) {
+      const sanitizedKey = sanitizeString(key);
+      if (sanitizedKey) {
+        sanitized[sanitizedKey] = sanitizeObject(value, maxDepth - 1);
+      }
+    }
+    return sanitized;
+  }
+  
+  return obj;
+}
+
+/**
+ * Check if value is a valid non-empty string
+ * @param {*} value - Value to check
+ * @returns {boolean} True if valid string
+ */
+function isValidString(value) {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+/**
+ * Check if value is a valid array with minimum length
+ * @param {*} value - Value to check
+ * @param {number} minLength - Minimum required length
+ * @returns {boolean} True if valid array
+ */
+function isValidArray(value, minLength = 1) {
+  return Array.isArray(value) && value.length >= minLength;
+}
+
+/**
+ * Validate string length
+ * @param {string} value - String to validate
+ * @param {number} min - Minimum length
+ * @param {number} max - Maximum length
+ * @param {string} fieldName - Name of field for error message
  * @returns {Object} Validation result
  */
+function validateStringLength(value, min, max, fieldName) {
+  const sanitized = sanitizeString(value);
+  
+  if (!sanitized) {
+    return { 
+      isValid: false, 
+      errors: [`${fieldName} is required`] 
+    };
+  }
+  
+  if (sanitized.length < min) {
+    return { 
+      isValid: false, 
+      errors: [`${fieldName} must be at least ${min} characters long`] 
+    };
+  }
+  
+  if (sanitized.length > max) {
+    return { 
+      isValid: false, 
+      errors: [`${fieldName} must not exceed ${max} characters`] 
+    };
+  }
+  
+  return { isValid: true, value: sanitized };
+}
+
+/**
+ * Validate idea input
+ * @param {string} idea - The idea text to validate
+ * @returns {Object} Validation result with isValid and errors properties
+ */
 function validateIdea(idea) {
+  if (!idea || typeof idea !== 'string') {
+    return { 
+      isValid: false, 
+      errors: ['Idea must be a non-empty string'] 
+    };
+  }
+
+  return validateStringLength(
+    idea,
+    VALIDATION.MIN_IDEA_LENGTH,
+    VALIDATION.MAX_IDEA_LENGTH,
+    'Idea'
+  );
+}
+
+/**
+ * Validate blueprint data
+ * @param {Object} blueprint - The blueprint object to validate
+ * @returns {Object} Validation result
+ */
+function validateBlueprint(blueprint) {
   const errors = [];
 
-  // Check if idea exists
-  if (!idea) {
-    errors.push('Idea is required');
+  if (!blueprint || typeof blueprint !== 'object') {
+    return { isValid: false, errors: ['Blueprint must be an object'] };
   }
 
-  // Check if idea is a string
-  if (typeof idea !== 'string') {
-    errors.push('Idea must be a string');
+  // Validate title
+  const titleValidation = validateStringLength(
+    blueprint.title,
+    VALIDATION.MIN_TITLE_LENGTH,
+    VALIDATION.MAX_TITLE_LENGTH,
+    'Title'
+  );
+  if (!titleValidation.isValid) {
+    errors.push(...titleValidation.errors);
   }
 
-  // Check minimum length
-  if (idea && idea.trim().length < 20) {
-    errors.push('Idea must be at least 20 characters long');
+  // Validate description
+  const descValidation = validateStringLength(
+    blueprint.description,
+    VALIDATION.MIN_DESCRIPTION_LENGTH,
+    VALIDATION.MAX_DESCRIPTION_LENGTH,
+    'Description'
+  );
+  if (!descValidation.isValid) {
+    errors.push(...descValidation.errors);
   }
 
-  // Check if idea is not just whitespace
-  if (idea && idea.trim().length === 0) {
-    errors.push('Idea cannot be empty or only whitespace');
-  }
-
-  return {
-    isValid: errors.length === 0,
-    errors
-  };
+  return errors.length > 0 
+    ? { isValid: false, errors } 
+    : { isValid: true };
 }
 
 /**
- * Validate UUID format
- * @param {string} id - ID to validate
- * @returns {boolean} True if valid UUID
+ * Validate artifact data
+ * @param {Object} artifact - The artifact object to validate
+ * @returns {Object} Validation result
  */
-function isValidUUID(id) {
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  return uuidRegex.test(id);
-}
+function validateArtifact(artifact) {
+  const errors = [];
 
-/**
- * Validate artifact type
- * @param {string} type - Artifact type
- * @returns {boolean} True if valid type
- */
-function isValidArtifactType(type) {
-  const validTypes = [
-    'frontend',
-    'backend',
-    'test',
-    'documentation',
-    'configuration',
-    'deployment',
-    'database'
-  ];
-  return validTypes.includes(type);
+  if (!artifact || typeof artifact !== 'object') {
+    return { isValid: false, errors: ['Artifact must be an object'] };
+  }
+
+  // Required fields
+  const requiredFields = ['projectName', 'filePath', 'artifactType', 'purpose'];
+  
+  for (const field of requiredFields) {
+    if (!artifact[field] || typeof artifact[field] !== 'string' || !artifact[field].trim()) {
+      errors.push(`${field} is required and must be a non-empty string`);
+    }
+  }
+
+  return errors.length > 0 
+    ? { isValid: false, errors } 
+    : { isValid: true };
 }
 
 module.exports = {
+  sanitizeString,
+  sanitizeObject,
+  isValidString,
+  isValidArray,
+  validateStringLength,
   validateIdea,
-  isValidUUID,
-  isValidArtifactType
+  validateBlueprint,
+  validateArtifact,
 };
 
 // Made with Bob

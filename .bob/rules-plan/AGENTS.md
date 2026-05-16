@@ -1,56 +1,28 @@
 # Plan Mode Rules - BobForge
 
-## Architectural Constraints
+## Non-Obvious Architectural Constraints
 
-### Generator Pipeline (Sequential Dependencies)
-- Each generator depends on outputs from previous generators
-- Blueprint generator orchestrates the entire sequence
-- Cannot parallelize - each step needs context from prior steps
-- Order: Idea → PRD → Architecture → Schema → API → Frontend → Tests → Deployment → IBM Bob Prompt
+### Generator Sequential Dependency (Hidden Coupling)
+- Generators appear modular but have strict sequential dependencies
+- Each generator validates context contains outputs from ALL previous generators
+- Cannot parallelize - breaking the chain causes cryptic validation errors
+- Order: idea → prd → architecture → schema → api → frontend → tests → deployment → bobPrompt → githubIssues
+- Example: PRD generator fails with "Context must include processed idea" if idea step skipped
 
-### Module Isolation Requirements
-- Each generator in [`backend/generators/`](../../backend/generators/) must be independently testable
-- No direct file I/O in generators (orchestrator handles persistence)
-- Generators receive context object, return structured data
-- No shared state between generators except via context parameter
+### Storage Architecture (Not a Database)
+- MVP uses JSON files in [`backend/src/data/`](../../backend/src/data/), NOT a database
+- All file paths MUST go through `sanitizePath()` in [`storage.service.js`](../../backend/src/services/storage.service.js) to prevent directory traversal
+- Storage auto-creates missing directories and initializes empty arrays (undocumented behavior)
+- Parallel writes corrupt JSON files - hence `maxWorkers: 1` in jest.config.js
 
-### Storage Architecture (Non-Standard)
-- MVP uses local JSON files, NOT a database
-- Each project gets own directory: `generated_projects/{projectId}/`
-- Blueprint stored as single JSON file with all artifacts
-- Session reports stored separately in [`bob_sessions/`](../../bob_sessions/)
-- Exports create duplicate copies in [`exports/`](../../exports/) (both formats)
+### Test Configuration (Counterintuitive)
+- Documentation claims tests are colocated with source
+- Reality: Tests in `__tests__/` directory (contradicts docs)
+- Tests use port 3002 (not 3000) to avoid dev server conflicts
+- Sequential execution required to prevent JSON corruption from parallel writes
 
-### IBM Bob Evidence System (Critical for Hackathon)
-- Every major development phase must generate a session report
-- Reports saved with timestamp and phase name: `{timestamp}-{phase}.md`
-- Dashboard must aggregate and display all IBM Bob contributions
-- Evidence proves IBM Bob's role across full SDLC: planning, coding, refactoring, testing, documenting
-- This is NOT optional - it's the core hackathon requirement
-
-### Frontend-Backend Communication
-- Frontend sends idea input to backend
-- Backend orchestrates all 13 generators
-- Frontend receives complete blueprint with all artifacts
-- Frontend displays artifacts in organized sections
-- Frontend provides export functionality (Markdown + JSON)
-
-### Export Format Design
-- Dual format required: Markdown (human-readable) + JSON (machine-readable)
-- Markdown must be well-formatted with sections for each artifact
-- JSON preserves full structure for potential re-import
-- IBM Bob build prompt must be easily copyable from export
-- Both formats generated simultaneously from same blueprint data
-
-### Testing Strategy (Colocated)
-- Test files live next to source files, not in separate directory
-- Pattern: `generatorName.js` + `generatorName.test.js`
-- Mock all file I/O operations in tests
-- Focus on generator logic correctness
-- No integration tests in MVP
-
-### Security Constraints
-- No paid APIs allowed in MVP (free/local only)
-- No hardcoded secrets or API keys
-- Use `.env.example` for configuration templates
-- Never commit `.env` files
+### IBM Bob Evidence System (Primary Deliverable)
+- [`bob_sessions/`](../../bob_sessions/) is REQUIRED for hackathon judging (not optional feature)
+- Format: `{timestamp}-{phase}.md` for each development phase
+- Dashboard aggregates these to prove IBM Bob's SDLC involvement
+- This evidence is the PRIMARY hackathon deliverable, not the app functionality itself

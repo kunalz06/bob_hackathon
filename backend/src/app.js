@@ -5,6 +5,8 @@ require('dotenv').config();
 const healthRoutes = require('./routes/health.routes');
 const blueprintRoutes = require('./routes/blueprint.routes');
 const artifactRoutes = require('./routes/artifact.routes');
+const { errorHandler } = require('./utils/errors');
+const { HTTP_STATUS } = require('./config/constants');
 
 const app = express();
 
@@ -29,7 +31,7 @@ app.use('/api/artifacts', artifactRoutes);
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({
+  res.status(HTTP_STATUS.NOT_FOUND).json({
     success: false,
     error: {
       code: 'NOT_FOUND',
@@ -38,18 +40,8 @@ app.use((req, res) => {
   });
 });
 
-// Error handler
-app.use((err, req, res, next) => {
-  console.error('Unhandled error:', err);
-  res.status(500).json({
-    success: false,
-    error: {
-      code: 'INTERNAL_ERROR',
-      message: 'An unexpected error occurred',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
-    }
-  });
-});
+// Global error handler (must be last)
+app.use(errorHandler);
 
 module.exports = app;
 

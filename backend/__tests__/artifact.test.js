@@ -69,8 +69,8 @@ describe('Artifact Tracker', () => {
         .expect('Content-Type', /json/);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error.code).toBe('VALIDATION_ERROR');
-      expect(response.body.error.message).toContain('Missing required fields');
+      expect(response.body.error.code).toBe('ValidationError');
+      expect(response.body.error.message).toContain('filePath');
     });
 
     it('should reject artifact with missing projectName', async () => {
@@ -87,7 +87,7 @@ describe('Artifact Tracker', () => {
         .expect(400);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+      expect(response.body.error.code).toBe('ValidationError');
     });
 
     it('should reject artifact with missing artifactType', async () => {
@@ -104,7 +104,7 @@ describe('Artifact Tracker', () => {
         .expect(400);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+      expect(response.body.error.code).toBe('ValidationError');
     });
 
     it('should reject artifact with missing purpose', async () => {
@@ -121,7 +121,7 @@ describe('Artifact Tracker', () => {
         .expect(400);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+      expect(response.body.error.code).toBe('ValidationError');
     });
 
     it('should create artifact with optional fields', async () => {
@@ -268,7 +268,7 @@ describe('Artifact Tracker', () => {
         .expect('Content-Type', /json/);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error.code).toBe('NOT_FOUND');
+      expect(response.body.error.code).toBe('NotFoundError');
     });
   });
 
@@ -313,7 +313,7 @@ describe('Artifact Tracker', () => {
         .expect('Content-Type', /json/);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error.code).toBe('NOT_FOUND');
+      expect(response.body.error.code).toBe('NotFoundError');
     });
   });
 });

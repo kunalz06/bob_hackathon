@@ -1,42 +1,30 @@
 # Ask Mode Rules - BobForge
 
-## Project Context for Questions
+## Non-Obvious Documentation Context
 
-### Architecture Overview
-- **Frontend**: React + Vite in [`frontend/`](../../frontend/) - handles UI for blueprint creation
-- **Backend**: Express API in [`backend/`](../../backend/) - orchestrates 13 generator modules
-- **Generators**: Modular functions in [`backend/generators/`](../../backend/generators/) - each creates one artifact type
+### Test Location Contradiction
+- Documentation says tests are colocated with source files
+- Reality: Tests are in `__tests__/` directory, NOT colocated
+- This is intentional for Jest configuration reasons
 
-### Key Directories
-- [`bob_sessions/`](../../bob_sessions/) - IBM Bob interaction evidence (CRITICAL for hackathon judging)
-- [`generated_projects/`](../../generated_projects/) - Output blueprints with all artifacts
-- [`sample_blueprints/`](../../sample_blueprints/) - Example blueprints for testing
-- [`exports/`](../../exports/) - Markdown and JSON exports of blueprints
+### Storage Architecture (Hidden)
+- "Database" is actually JSON files in [`backend/src/data/`](../../backend/src/data/)
+- All file operations go through `sanitizePath()` security check in [`storage.service.js`](../../backend/src/services/storage.service.js)
+- Storage auto-creates missing directories and files (not documented in API)
 
-### Generator Pipeline
-1. Idea input → 2. PRD → 3. Architecture → 4. Database schema → 5. API routes → 6. Frontend pages → 7. Test plan → 8. Deployment checklist → 9. IBM Bob build prompt
+### Generator Dependencies (Non-Linear)
+- Generators appear independent but have strict sequential dependencies
+- Each generator validates context from ALL previous generators
+- Missing context fields cause cryptic errors (e.g., PRD fails if `context.idea.processed` missing)
+- Dependency chain: idea → prd → architecture → schema → api → frontend → tests → deployment → bobPrompt → githubIssues
 
-### IBM Bob Integration (Non-Obvious)
-- This project is FOR the IBM Bob Hackathon
-- Goal: Demonstrate IBM Bob as full SDLC partner
-- Every development phase must generate a session report
-- Dashboard aggregates IBM Bob's contributions across all phases
-- Session reports prove IBM Bob's involvement in planning, coding, testing, documenting
+### IBM Bob Evidence System
+- [`bob_sessions/`](../../bob_sessions/) directory is REQUIRED for hackathon judging (not optional)
+- Session reports must follow format: `{timestamp}-{phase}.md`
+- Dashboard aggregates these to prove IBM Bob's SDLC involvement
+- This is the PRIMARY hackathon deliverable, not the app itself
 
-### Storage Strategy
-- MVP uses local JSON files (no database)
-- Each blueprint stored as: `generated_projects/{projectId}/blueprint.json`
-- Optional SQLite for later versions
-- No paid APIs allowed in MVP
-
-### Export Format (Non-Standard)
-- Dual format: Markdown (human) + JSON (machine)
-- Markdown includes formatted sections for each artifact
-- JSON preserves full structure for re-import
-- IBM Bob build prompt must be copyable from export
-
-### Testing Approach
-- Unit tests colocated with generators
-- No separate test directory
-- Mock file I/O in tests
-- Focus on generator logic, not integration
+### Test Port Configuration
+- Tests use port 3002 (not 3000) to avoid dev server conflicts
+- Configured in [`__tests__/setup.js`](../../backend/__tests__/setup.js)
+- Tests run sequentially (`maxWorkers: 1`) to prevent JSON file corruption from parallel writes
