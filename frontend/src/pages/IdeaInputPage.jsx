@@ -25,13 +25,18 @@ function IdeaInputPage() {
     try {
       const result = await generateBlueprint(idea);
       
-      // Store the latest blueprint ID in localStorage
-      localStorage.setItem('latestBlueprintId', result.id);
+      // Extract blueprint ID from response (could be 'id' or 'projectId')
+      const blueprintId = result.projectId || result.blueprint?.id || result.id;
+      
+      if (!blueprintId) {
+        throw new Error('No blueprint ID returned from server');
+      }
       
       // Navigate to the blueprint dashboard
-      navigate(`/blueprints/${result.id}`);
+      navigate(`/blueprints/${blueprintId}`);
     } catch (err) {
-      setError(err.message);
+      console.error('Blueprint generation error:', err);
+      setError(err.message || 'Failed to generate blueprint');
     } finally {
       setLoading(false);
     }

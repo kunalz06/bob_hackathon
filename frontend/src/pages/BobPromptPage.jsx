@@ -37,10 +37,13 @@ function BobPromptPage() {
     setError('');
 
     try {
-      const data = await getBlueprintById(blueprintId);
-      setBlueprint(data);
+      const response = await getBlueprintById(blueprintId);
+      // Extract blueprint from response (could be nested)
+      const blueprintData = response.blueprint || response;
+      setBlueprint(blueprintData);
     } catch (err) {
-      setError(err.message);
+      console.error('Failed to load blueprint:', err);
+      setError(err.message || 'Failed to load blueprint');
     } finally {
       setLoading(false);
     }

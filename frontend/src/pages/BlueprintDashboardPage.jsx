@@ -41,12 +41,15 @@ function BlueprintDashboardPage() {
     setError('');
 
     try {
-      const data = await getBlueprintById(blueprintId);
-      setBlueprint(data);
+      const response = await getBlueprintById(blueprintId);
+      // Extract blueprint from response (could be nested)
+      const blueprintData = response.blueprint || response;
+      setBlueprint(blueprintData);
       // Update localStorage with current blueprint
       localStorage.setItem('latestBlueprintId', blueprintId);
     } catch (err) {
-      setError(err.message);
+      console.error('Failed to load blueprint:', err);
+      setError(err.message || 'Failed to load blueprint');
     } finally {
       setLoading(false);
     }
@@ -143,13 +146,106 @@ function BlueprintDashboardPage() {
         <BlueprintSummary blueprint={blueprint} />
 
         {/* Architecture */}
-        <SectionCard title="🏗️ System Architecture" className="mb-6">
-          <div className="prose max-w-none">
-            <pre className="bg-gray-50 p-4 rounded-lg overflow-x-auto text-sm">
-              {blueprint.architecture}
-            </pre>
-          </div>
-        </SectionCard>
+        {blueprint.architecture && (
+          <SectionCard title="🏗️ System Architecture" className="mb-6">
+            <div className="space-y-6">
+              {/* Overview */}
+              {blueprint.architecture.overview && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Overview</h3>
+                  <p className="text-gray-700">{blueprint.architecture.overview}</p>
+                </div>
+              )}
+
+              {/* Architecture Pattern */}
+              {blueprint.architecture.architecturePattern && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Architecture Pattern</h3>
+                  <p className="text-gray-700">{blueprint.architecture.architecturePattern}</p>
+                </div>
+              )}
+
+              {/* Architecture Diagram */}
+              {blueprint.architecture.architectureDiagramText && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Architecture Diagram</h3>
+                  <pre className="bg-gray-50 p-4 rounded-lg overflow-x-auto text-sm font-mono">
+                    {blueprint.architecture.architectureDiagramText}
+                  </pre>
+                </div>
+              )}
+
+              {/* Components */}
+              {blueprint.architecture.components && blueprint.architecture.components.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3">Components</h3>
+                  <div className="space-y-4">
+                    {blueprint.architecture.components.map((component, index) => (
+                      <div key={index} className="bg-gray-50 p-4 rounded-lg">
+                        <h4 className="font-semibold text-gray-800 mb-2">{component.name}</h4>
+                        <p className="text-gray-600 text-sm mb-3">{component.description}</p>
+                        {component.technologies && component.technologies.length > 0 && (
+                          <div className="mb-2">
+                            <span className="text-xs font-semibold text-gray-700">Technologies: </span>
+                            <div className="flex flex-wrap gap-2 mt-1">
+                              {component.technologies.map((tech, techIndex) => (
+                                <span key={techIndex} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                  {tech}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {component.responsibilities && component.responsibilities.length > 0 && (
+                          <div>
+                            <span className="text-xs font-semibold text-gray-700">Responsibilities:</span>
+                            <ul className="list-disc list-inside text-sm text-gray-600 mt-1">
+                              {component.responsibilities.map((resp, respIndex) => (
+                                <li key={respIndex}>{resp}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Data Flow */}
+              {blueprint.architecture.dataFlow && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Data Flow</h3>
+                  <pre className="bg-gray-50 p-4 rounded-lg text-sm whitespace-pre-wrap">
+                    {blueprint.architecture.dataFlow}
+                  </pre>
+                </div>
+              )}
+
+              {/* Tech Stack */}
+              {blueprint.architecture.techStack && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3">Technology Stack</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {Object.entries(blueprint.architecture.techStack).map(([category, details]) => (
+                      <div key={category} className="bg-gray-50 p-4 rounded-lg">
+                        <h4 className="font-semibold text-gray-800 mb-2 capitalize">{category}</h4>
+                        <dl className="space-y-1">
+                          {typeof details === 'object' && Object.entries(details).map(([key, value]) => (
+                            <div key={key} className="text-sm">
+                              <dt className="text-gray-600 capitalize inline">{key.replace(/([A-Z])/g, ' $1').trim()}: </dt>
+                              <dd className="text-gray-800 inline">{value}</dd>
+                            </div>
+                          ))}
+                        </dl>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </SectionCard>
+        )}
 
         {/* Database Schema */}
         {blueprint.schema && blueprint.schema.tables && blueprint.schema.tables.length > 0 && (
