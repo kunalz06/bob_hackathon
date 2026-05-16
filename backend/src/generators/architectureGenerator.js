@@ -36,25 +36,28 @@ function extractInput(context) {
 
 async function generateArchitecture(input) {
   // Template-based architecture generation for MVP
-  const hasAuth = input.features.some(f => 
-    f.name.toLowerCase().includes('auth') || 
+  const hasAuth = input.features.some(f =>
+    f.name.toLowerCase().includes('auth') ||
     f.name.toLowerCase().includes('login') ||
     f.name.toLowerCase().includes('user')
   );
 
-  const hasDashboard = input.features.some(f => 
+  const hasDashboard = input.features.some(f =>
     f.name.toLowerCase().includes('dashboard') ||
     f.name.toLowerCase().includes('analytics')
   );
 
-  const hasAPI = input.features.some(f => 
+  const hasAPI = input.features.some(f =>
     f.name.toLowerCase().includes('api') ||
     f.name.toLowerCase().includes('integration')
   );
 
+  const architectureDiagram = generateArchitectureDiagram(input.title, hasAuth);
+
   return {
     overview: `The ${input.title} follows a modern three-tier architecture with clear separation of concerns. The system is designed to be scalable, maintainable, and secure.`,
     architecturePattern: 'Three-Tier Architecture (Presentation, Business Logic, Data)',
+    architectureDiagramText: architectureDiagram,
     components: [
       {
         name: 'Frontend Layer',
@@ -102,6 +105,7 @@ async function generateArchitecture(input) {
     techStack: {
       frontend: {
         framework: 'React 18+',
+        buildTool: 'Vite',
         stateManagement: 'React Context API / Redux Toolkit',
         styling: 'Tailwind CSS',
         routing: 'React Router v6',
@@ -118,10 +122,11 @@ async function generateArchitecture(input) {
         errorHandling: 'Custom middleware'
       },
       database: {
-        primary: 'PostgreSQL 14+',
-        orm: 'Prisma / Sequelize',
-        caching: 'Redis (optional)',
-        migrations: 'Prisma Migrate / Sequelize'
+        primary: 'SQLite 3',
+        orm: 'better-sqlite3 / Sequelize',
+        caching: 'In-memory (optional)',
+        migrations: 'SQL scripts / Sequelize',
+        note: 'SQLite for development and small-scale deployments. Can migrate to PostgreSQL for production if needed.'
       },
       devOps: {
         containerization: 'Docker',
@@ -175,6 +180,82 @@ function validateArchitecture(architecture) {
   if (!architecture || !architecture.components || architecture.components.length === 0) {
     throw new Error('Invalid architecture structure');
   }
+}
+
+function generateArchitectureDiagram(title, hasAuth) {
+  return `
+┌─────────────────────────────────────────────────────────────────┐
+│                         ${title}                                 │
+│                     System Architecture                          │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│                      PRESENTATION LAYER                          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │           React Frontend (Vite + Tailwind CSS)           │  │
+│  │                                                           │  │
+│  │  • Single Page Application (SPA)                         │  │
+│  │  • React Router for navigation                           │  │
+│  │  • Tailwind CSS for styling                              │  │
+│  │  • Axios for API communication                           │  │
+│  │  • React Context for state management                    │  │
+│  └──────────────────────────────────────────────────────────┘  │
+│                                                                  │
+└────────────────────────┬─────────────────────────────────────────┘
+                         │
+                         │ HTTPS/REST API
+                         │
+┌────────────────────────▼─────────────────────────────────────────┐
+│                      BUSINESS LOGIC LAYER                        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │              Node.js + Express.js API                    │  │
+│  │                                                           │  │
+│  │  • RESTful API endpoints                                 │  │
+│  │  • Request validation & sanitization                     │  │
+${hasAuth ? '│  │  • JWT authentication middleware                         │  │' : '│  │  • Business logic processing                            │  │'}
+│  │  • Error handling middleware                             │  │
+│  │  • Logging & monitoring                                  │  │
+│  └──────────────────────────────────────────────────────────┘  │
+│                                                                  │
+└────────────────────────┬─────────────────────────────────────────┘
+                         │
+                         │ SQL Queries
+                         │
+┌────────────────────────▼─────────────────────────────────────────┐
+│                         DATA LAYER                               │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │                   SQLite Database                        │  │
+│  │                                                           │  │
+│  │  • Relational data storage                               │  │
+│  │  • ACID compliance                                       │  │
+│  │  • File-based database                                   │  │
+│  │  • Easy backup & migration                               │  │
+│  └──────────────────────────────────────────────────────────┘  │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+
+DATA FLOW:
+──────────
+1. User interacts with React frontend
+2. Frontend sends HTTP request to Express API
+3. API validates request and processes business logic
+4. API queries SQLite database
+5. Database returns results
+6. API transforms data and sends response
+7. Frontend updates UI with response data
+
+DEPLOYMENT:
+───────────
+• Frontend: Vercel / Netlify (Static hosting + CDN)
+• Backend: Railway / Render (Node.js hosting)
+• Database: SQLite file (bundled with backend)
+`.trim();
 }
 
 module.exports = { generate };

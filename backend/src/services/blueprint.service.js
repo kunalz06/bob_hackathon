@@ -8,6 +8,7 @@ const frontendPlanGenerator = require('../generators/frontendPlanGenerator');
 const testPlanGenerator = require('../generators/testPlanGenerator');
 const deploymentPlanGenerator = require('../generators/deploymentPlanGenerator');
 const bobPromptGenerator = require('../generators/bobPromptGenerator');
+const githubIssuesGenerator = require('../generators/githubIssuesGenerator');
 const { slugify } = require('../utils/slugify');
 
 /**
@@ -30,36 +31,63 @@ async function generateBlueprint(idea) {
     console.log('Starting blueprint generation...');
 
     // Execute generator pipeline sequentially
-    console.log('1/8 Generating PRD...');
+    console.log('1/9 Generating PRD...');
     context = await prdGenerator.generate(context);
     
-    console.log('2/8 Generating Architecture...');
+    console.log('2/9 Generating Architecture...');
     context = await architectureGenerator.generate(context);
     
-    console.log('3/8 Generating Database Schema...');
+    console.log('3/9 Generating Database Schema...');
     context = await schemaGenerator.generate(context);
     
-    console.log('4/8 Generating API Plan...');
+    console.log('4/9 Generating API Plan...');
     context = await apiPlanGenerator.generate(context);
     
-    console.log('5/8 Generating Frontend Plan...');
+    console.log('5/9 Generating Frontend Plan...');
     context = await frontendPlanGenerator.generate(context);
     
-    console.log('6/8 Generating Test Plan...');
+    console.log('6/9 Generating Test Plan...');
     context = await testPlanGenerator.generate(context);
     
-    console.log('7/8 Generating Deployment Plan...');
+    console.log('7/9 Generating Deployment Plan...');
     context = await deploymentPlanGenerator.generate(context);
     
-    console.log('8/8 Generating IBM Bob Prompt...');
+    console.log('8/9 Generating GitHub Issues...');
+    context = await githubIssuesGenerator.generate(context);
+    
+    console.log('9/9 Generating IBM Bob Prompt...');
     context = await bobPromptGenerator.generate(context);
 
-    // Create blueprint object
+    // Generate clean project name
+    const projectName = generateProjectName(context.idea.processed.title);
+    const slug = slugify(projectName);
+
+    // Create blueprint object with all required fields
     const blueprint = {
-      projectId: crypto.randomUUID(),
+      id: crypto.randomUUID(),
+      projectName: projectName,
+      slug: slug,
+      idea: context.idea.raw,
+      problemStatement: context.prd.problemStatement,
+      targetUsers: context.prd.targetUsers.map(u => u.type),
+      userRoles: context.prd.userRoles,
+      coreFeatures: context.prd.coreFeatures,
+      mvpFeatures: context.prd.mvpFeatures,
+      advancedFeatures: context.prd.advancedFeatures,
+      nonFunctionalRequirements: context.prd.nonFunctionalRequirements,
+      techStack: context.architecture.techStack,
+      architecture: context.architecture,
+      architectureDiagramText: context.architecture.architectureDiagramText,
+      databaseSchema: context.schema,
+      apiRoutes: context.api.endpoints,
+      frontendPages: context.frontend.pages,
+      testPlan: context.tests,
+      deploymentPlan: context.deployment,
+      githubIssues: context.githubIssues.issues,
+      bobBuildPrompt: context.bobPrompt.prompt,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      idea: context.idea,
+      
+      // Keep full artifacts for backward compatibility
       artifacts: {
         prd: context.prd,
         architecture: context.architecture,
@@ -68,6 +96,7 @@ async function generateBlueprint(idea) {
         frontend: context.frontend,
         tests: context.tests,
         deployment: context.deployment,
+        githubIssues: context.githubIssues,
         bobPrompt: context.bobPrompt
       },
       metadata: {
@@ -201,6 +230,40 @@ function extractKeyFeatures(idea) {
 }
 
 /**
+ * Generate a clean project name from title
+ * @param {string} title - Raw title
+ * @returns {string} Clean project name
+ */
+function generateProjectName(title) {
+  // Remove common generic words
+  const genericWords = ['app', 'system', 'application', 'platform', 'tool', 'software', 'solution'];
+  
+  let name = title.trim();
+  
+  // If title is just a generic word, keep it but make it more specific
+  const lowerName = name.toLowerCase();
+  const isGeneric = genericWords.some(word => lowerName === word || lowerName === word + 's');
+  
+  if (isGeneric) {
+    return 'My ' + name;
+  }
+  
+  // Remove trailing generic words if they exist
+  genericWords.forEach(word => {
+    const regex = new RegExp(`\\s+${word}$`, 'i');
+    name = name.replace(regex, '');
+  });
+  
+  // Capitalize first letter of each word
+  name = name
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+  
+  return name.trim() || 'My Project';
+}
+
+/**
  * Get all blueprints
  * @returns {Promise<Array>} Array of blueprint summaries
  */
@@ -209,11 +272,12 @@ async function getAllBlueprints() {
   
   // Return summaries only
   return blueprints.map(bp => ({
-    projectId: bp.projectId,
-    title: bp.idea.processed.title,
-    description: bp.idea.processed.description,
+    projectId: bp.id || bp.projectId,
+    projectName: bp.projectName || bp.idea?.processed?.title || 'Untitled',
+    slug: bp.slug,
+    description: bp.idea?.processed?.description || bp.problemStatement || '',
     createdAt: bp.createdAt,
-    status: bp.metadata.status
+    status: bp.metadata?.status || 'complete'
   }));
 }
 

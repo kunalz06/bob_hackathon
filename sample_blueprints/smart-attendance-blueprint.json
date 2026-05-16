@@ -1,0 +1,843 @@
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "projectName": "Smart Attendance Management",
+  "slug": "smart-attendance-management",
+  "idea": "Build a smart attendance management system for colleges with admin, teacher, and student dashboards, attendance marking, reports, and CSV export.",
+  "problemStatement": "This application addresses the need for build a smart attendance management system for colleges with admin, teacher, and student dashboards, attendance marking, reports, and csv export.. Current solutions often lack efficiency, user-friendliness, and proper integration. Smart Attendance Management System aims to provide a comprehensive, modern solution that streamlines workflows, enhances productivity, and delivers an excellent user experience.",
+  "targetUsers": [
+    "Administrators",
+    "Students/Teachers"
+  ],
+  "userRoles": [
+    {
+      "name": "Administrator",
+      "permissions": [
+        "Full system access",
+        "User management",
+        "System configuration",
+        "View all data"
+      ],
+      "description": "System administrator with full access to all features"
+    },
+    {
+      "name": "Teacher",
+      "permissions": [
+        "Manage classes",
+        "Mark attendance",
+        "View reports",
+        "Manage students"
+      ],
+      "description": "Teacher with access to class management and attendance features"
+    },
+    {
+      "name": "Student",
+      "permissions": [
+        "View attendance",
+        "View profile",
+        "Submit requests"
+      ],
+      "description": "Student with limited access to view their own data"
+    }
+  ],
+  "coreFeatures": [
+    {
+      "id": "F1",
+      "name": "User Authentication",
+      "description": "Implementation of User Authentication to enhance user experience and productivity",
+      "priority": "High"
+    },
+    {
+      "id": "F2",
+      "name": "Dashboard",
+      "description": "Implementation of Dashboard to enhance user experience and productivity",
+      "priority": "High"
+    },
+    {
+      "id": "F3",
+      "name": "Data Management",
+      "description": "Implementation of Data Management to enhance user experience and productivity",
+      "priority": "High"
+    },
+    {
+      "id": "F4",
+      "name": "Reporting & Analytics",
+      "description": "Implementation of Reporting & Analytics to enhance user experience and productivity",
+      "priority": "Medium"
+    }
+  ],
+  "mvpFeatures": [
+    {
+      "name": "User Authentication",
+      "description": "User Authentication functionality",
+      "priority": "High"
+    },
+    {
+      "name": "Dashboard",
+      "description": "Dashboard functionality",
+      "priority": "High"
+    },
+    {
+      "name": "Data Management",
+      "description": "Data Management functionality",
+      "priority": "High"
+    }
+  ],
+  "advancedFeatures": [
+    {
+      "name": "Reporting & Analytics",
+      "description": "Reporting & Analytics functionality",
+      "priority": "Medium"
+    }
+  ],
+  "nonFunctionalRequirements": {
+    "performance": [
+      "Page load time < 3 seconds",
+      "API response time < 200ms",
+      "Support 100+ concurrent users"
+    ],
+    "security": [
+      "Secure authentication and authorization",
+      "Data encryption in transit (HTTPS)",
+      "Input validation and sanitization",
+      "Protection against common vulnerabilities (XSS, CSRF, SQL Injection)"
+    ],
+    "usability": [
+      "Intuitive user interface",
+      "Responsive design (mobile, tablet, desktop)",
+      "Accessibility compliance (WCAG 2.1 Level AA)",
+      "Clear error messages and feedback"
+    ],
+    "reliability": [
+      "System uptime > 99.5%",
+      "Automated backups",
+      "Error logging and monitoring",
+      "Graceful error handling"
+    ],
+    "scalability": [
+      "Horizontal scaling capability",
+      "Database optimization",
+      "Caching strategy",
+      "CDN for static assets"
+    ]
+  },
+  "techStack": {
+    "frontend": {
+      "framework": "React 18+",
+      "buildTool": "Vite",
+      "stateManagement": "React Context API / Redux Toolkit",
+      "styling": "Tailwind CSS",
+      "routing": "React Router v6",
+      "httpClient": "Axios",
+      "formHandling": "React Hook Form",
+      "validation": "Zod / Yup"
+    },
+    "backend": {
+      "runtime": "Node.js 18+",
+      "framework": "Express.js",
+      "authentication": "JWT + bcrypt",
+      "validation": "express-validator",
+      "logging": "Winston / Morgan",
+      "errorHandling": "Custom middleware"
+    },
+    "database": {
+      "primary": "SQLite 3",
+      "orm": "better-sqlite3 / Sequelize",
+      "caching": "In-memory (optional)",
+      "migrations": "SQL scripts / Sequelize",
+      "note": "SQLite for development and small-scale deployments. Can migrate to PostgreSQL for production if needed."
+    }
+  },
+  "architecture": {
+    "overview": "The Smart Attendance Management System follows a modern three-tier architecture with clear separation of concerns. The system is designed to be scalable, maintainable, and secure.",
+    "architecturePattern": "Three-Tier Architecture (Presentation, Business Logic, Data)"
+  },
+  "architectureDiagramText": "┌─────────────────────────────────────────────────────────────────┐\n│                  Smart Attendance Management System              │\n│                     System Architecture                          │\n└─────────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────────┐\n│                      PRESENTATION LAYER                          │\n├─────────────────────────────────────────────────────────────────┤\n│                                                                  │\n│  ┌──────────────────────────────────────────────────────────┐  │\n│  │           React Frontend (Vite + Tailwind CSS)           │  │\n│  │                                                           │  │\n│  │  • Single Page Application (SPA)                         │  │\n│  │  • React Router for navigation                           │  │\n│  │  • Tailwind CSS for styling                              │  │\n│  │  • Axios for API communication                           │  │\n│  │  • React Context for state management                    │  │\n│  └──────────────────────────────────────────────────────────┘  │\n│                                                                  │\n└────────────────────────┬─────────────────────────────────────────┘\n                         │\n                         │ HTTPS/REST API\n                         │\n┌────────────────────────▼─────────────────────────────────────────┐\n│                      BUSINESS LOGIC LAYER                        │\n├─────────────────────────────────────────────────────────────────┤\n│                                                                  │\n│  ┌──────────────────────────────────────────────────────────┐  │\n│  │              Node.js + Express.js API                    │  │\n│  │                                                           │  │\n│  │  • RESTful API endpoints                                 │  │\n│  │  • Request validation & sanitization                     │  │\n│  │  • JWT authentication middleware                         │  │\n│  │  • Error handling middleware                             │  │\n│  │  • Logging & monitoring                                  │  │\n│  └──────────────────────────────────────────────────────────┘  │\n│                                                                  │\n└────────────────────────┬─────────────────────────────────────────┘\n                         │\n                         │ SQL Queries\n                         │\n┌────────────────────────▼─────────────────────────────────────────┐\n│                         DATA LAYER                               │\n├─────────────────────────────────────────────────────────────────┤\n│                                                                  │\n│  ┌──────────────────────────────────────────────────────────┐  │\n│  │                   SQLite Database                        │  │\n│  │                                                           │  │\n│  │  • Relational data storage                               │  │\n│  │  • ACID compliance                                       │  │\n│  │  • File-based database                                   │  │\n│  │  • Easy backup & migration                               │  │\n│  └──────────────────────────────────────────────────────────┘  │\n│                                                                  │\n└─────────────────────────────────────────────────────────────────┘\n\nDATA FLOW:\n──────────\n1. User interacts with React frontend\n2. Frontend sends HTTP request to Express API\n3. API validates request and processes business logic\n4. API queries SQLite database\n5. Database returns results\n6. API transforms data and sends response\n7. Frontend updates UI with response data\n\nDEPLOYMENT:\n───────────\n• Frontend: Vercel / Netlify (Static hosting + CDN)\n• Backend: Railway / Render (Node.js hosting)\n• Database: SQLite file (bundled with backend)",
+  "databaseSchema": {
+    "database": "SQLite",
+    "version": "3",
+    "tables": [
+      {
+        "name": "users",
+        "description": "User accounts and authentication",
+        "columns": [
+          {
+            "name": "id",
+            "type": "INTEGER",
+            "primaryKey": true,
+            "autoIncrement": true
+          },
+          {
+            "name": "email",
+            "type": "VARCHAR(255)",
+            "unique": true,
+            "nullable": false
+          },
+          {
+            "name": "password_hash",
+            "type": "VARCHAR(255)",
+            "nullable": false
+          },
+          {
+            "name": "first_name",
+            "type": "VARCHAR(100)",
+            "nullable": true
+          },
+          {
+            "name": "last_name",
+            "type": "VARCHAR(100)",
+            "nullable": true
+          },
+          {
+            "name": "role",
+            "type": "VARCHAR(50)",
+            "default": "'user'",
+            "nullable": false
+          },
+          {
+            "name": "is_active",
+            "type": "BOOLEAN",
+            "default": "1",
+            "nullable": false
+          },
+          {
+            "name": "email_verified",
+            "type": "BOOLEAN",
+            "default": "0",
+            "nullable": false
+          },
+          {
+            "name": "created_at",
+            "type": "DATETIME",
+            "default": "CURRENT_TIMESTAMP",
+            "nullable": false
+          },
+          {
+            "name": "updated_at",
+            "type": "DATETIME",
+            "default": "CURRENT_TIMESTAMP",
+            "nullable": false
+          }
+        ],
+        "indexes": [
+          {
+            "name": "idx_users_email",
+            "columns": ["email"],
+            "unique": true
+          },
+          {
+            "name": "idx_users_role",
+            "columns": ["role"]
+          }
+        ]
+      },
+      {
+        "name": "classes",
+        "description": "Classes or courses",
+        "columns": [
+          {
+            "name": "id",
+            "type": "INTEGER",
+            "primaryKey": true,
+            "autoIncrement": true
+          },
+          {
+            "name": "name",
+            "type": "VARCHAR(255)",
+            "nullable": false
+          },
+          {
+            "name": "code",
+            "type": "VARCHAR(50)",
+            "unique": true,
+            "nullable": false
+          },
+          {
+            "name": "description",
+            "type": "TEXT",
+            "nullable": true
+          },
+          {
+            "name": "teacher_id",
+            "type": "INTEGER",
+            "nullable": false,
+            "foreignKey": "users(id)"
+          },
+          {
+            "name": "schedule",
+            "type": "TEXT",
+            "nullable": true
+          },
+          {
+            "name": "is_active",
+            "type": "BOOLEAN",
+            "default": "1",
+            "nullable": false
+          },
+          {
+            "name": "created_at",
+            "type": "DATETIME",
+            "default": "CURRENT_TIMESTAMP",
+            "nullable": false
+          },
+          {
+            "name": "updated_at",
+            "type": "DATETIME",
+            "default": "CURRENT_TIMESTAMP",
+            "nullable": false
+          }
+        ],
+        "indexes": [
+          {
+            "name": "idx_classes_code",
+            "columns": ["code"],
+            "unique": true
+          },
+          {
+            "name": "idx_classes_teacher",
+            "columns": ["teacher_id"]
+          }
+        ]
+      },
+      {
+        "name": "students",
+        "description": "Student information",
+        "columns": [
+          {
+            "name": "id",
+            "type": "INTEGER",
+            "primaryKey": true,
+            "autoIncrement": true
+          },
+          {
+            "name": "user_id",
+            "type": "INTEGER",
+            "nullable": false,
+            "foreignKey": "users(id)"
+          },
+          {
+            "name": "roll_number",
+            "type": "VARCHAR(50)",
+            "unique": true,
+            "nullable": false
+          },
+          {
+            "name": "department",
+            "type": "VARCHAR(100)",
+            "nullable": true
+          },
+          {
+            "name": "year",
+            "type": "INTEGER",
+            "nullable": true
+          },
+          {
+            "name": "section",
+            "type": "VARCHAR(10)",
+            "nullable": true
+          },
+          {
+            "name": "created_at",
+            "type": "DATETIME",
+            "default": "CURRENT_TIMESTAMP",
+            "nullable": false
+          },
+          {
+            "name": "updated_at",
+            "type": "DATETIME",
+            "default": "CURRENT_TIMESTAMP",
+            "nullable": false
+          }
+        ],
+        "indexes": [
+          {
+            "name": "idx_students_roll",
+            "columns": ["roll_number"],
+            "unique": true
+          },
+          {
+            "name": "idx_students_user",
+            "columns": ["user_id"]
+          }
+        ]
+      },
+      {
+        "name": "class_enrollments",
+        "description": "Student enrollments in classes",
+        "columns": [
+          {
+            "name": "id",
+            "type": "INTEGER",
+            "primaryKey": true,
+            "autoIncrement": true
+          },
+          {
+            "name": "class_id",
+            "type": "INTEGER",
+            "nullable": false,
+            "foreignKey": "classes(id)"
+          },
+          {
+            "name": "student_id",
+            "type": "INTEGER",
+            "nullable": false,
+            "foreignKey": "students(id)"
+          },
+          {
+            "name": "enrolled_at",
+            "type": "DATETIME",
+            "default": "CURRENT_TIMESTAMP",
+            "nullable": false
+          },
+          {
+            "name": "status",
+            "type": "VARCHAR(50)",
+            "default": "'active'",
+            "nullable": false
+          }
+        ],
+        "indexes": [
+          {
+            "name": "idx_enrollments_class",
+            "columns": ["class_id"]
+          },
+          {
+            "name": "idx_enrollments_student",
+            "columns": ["student_id"]
+          },
+          {
+            "name": "idx_enrollments_unique",
+            "columns": ["class_id", "student_id"],
+            "unique": true
+          }
+        ]
+      },
+      {
+        "name": "attendance_records",
+        "description": "Daily attendance records",
+        "columns": [
+          {
+            "name": "id",
+            "type": "INTEGER",
+            "primaryKey": true,
+            "autoIncrement": true
+          },
+          {
+            "name": "class_id",
+            "type": "INTEGER",
+            "nullable": false,
+            "foreignKey": "classes(id)"
+          },
+          {
+            "name": "student_id",
+            "type": "INTEGER",
+            "nullable": false,
+            "foreignKey": "students(id)"
+          },
+          {
+            "name": "date",
+            "type": "DATE",
+            "nullable": false
+          },
+          {
+            "name": "status",
+            "type": "VARCHAR(20)",
+            "nullable": false
+          },
+          {
+            "name": "marked_by",
+            "type": "INTEGER",
+            "nullable": false,
+            "foreignKey": "users(id)"
+          },
+          {
+            "name": "remarks",
+            "type": "TEXT",
+            "nullable": true
+          },
+          {
+            "name": "created_at",
+            "type": "DATETIME",
+            "default": "CURRENT_TIMESTAMP",
+            "nullable": false
+          }
+        ],
+        "indexes": [
+          {
+            "name": "idx_attendance_class_date",
+            "columns": ["class_id", "date"]
+          },
+          {
+            "name": "idx_attendance_student",
+            "columns": ["student_id"]
+          },
+          {
+            "name": "idx_attendance_unique",
+            "columns": ["class_id", "student_id", "date"],
+            "unique": true
+          }
+        ]
+      },
+      {
+        "name": "attendance_reports",
+        "description": "Generated attendance reports",
+        "columns": [
+          {
+            "name": "id",
+            "type": "INTEGER",
+            "primaryKey": true,
+            "autoIncrement": true
+          },
+          {
+            "name": "class_id",
+            "type": "INTEGER",
+            "nullable": false,
+            "foreignKey": "classes(id)"
+          },
+          {
+            "name": "report_type",
+            "type": "VARCHAR(50)",
+            "nullable": false
+          },
+          {
+            "name": "start_date",
+            "type": "DATE",
+            "nullable": false
+          },
+          {
+            "name": "end_date",
+            "type": "DATE",
+            "nullable": false
+          },
+          {
+            "name": "generated_by",
+            "type": "INTEGER",
+            "nullable": false,
+            "foreignKey": "users(id)"
+          },
+          {
+            "name": "file_path",
+            "type": "VARCHAR(500)",
+            "nullable": true
+          },
+          {
+            "name": "created_at",
+            "type": "DATETIME",
+            "default": "CURRENT_TIMESTAMP",
+            "nullable": false
+          }
+        ],
+        "indexes": [
+          {
+            "name": "idx_reports_class",
+            "columns": ["class_id"]
+          },
+          {
+            "name": "idx_reports_dates",
+            "columns": ["start_date", "end_date"]
+          }
+        ]
+      }
+    ]
+  },
+  "apiRoutes": [
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "description": "Health check endpoint",
+      "authentication": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/register",
+      "description": "Register a new user account",
+      "authentication": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/login",
+      "description": "Authenticate user and get access token",
+      "authentication": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/logout",
+      "description": "Logout user and invalidate token",
+      "authentication": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/me",
+      "description": "Get current user profile",
+      "authentication": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/classes",
+      "description": "Get all classes",
+      "authentication": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/classes",
+      "description": "Create new class",
+      "authentication": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/classes/:id",
+      "description": "Get class by ID",
+      "authentication": true
+    },
+    {
+      "method": "PUT",
+      "path": "/api/classes/:id",
+      "description": "Update class",
+      "authentication": true
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/classes/:id",
+      "description": "Delete class",
+      "authentication": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/students",
+      "description": "Get all students",
+      "authentication": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/students",
+      "description": "Create new student",
+      "authentication": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/attendance",
+      "description": "Get attendance records",
+      "authentication": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/attendance",
+      "description": "Mark attendance",
+      "authentication": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/reports",
+      "description": "Get attendance reports",
+      "authentication": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/reports/generate",
+      "description": "Generate new attendance report",
+      "authentication": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/reports/export/:id",
+      "description": "Export report as CSV",
+      "authentication": true
+    }
+  ],
+  "frontendPages": [
+    {
+      "name": "LoginPage",
+      "path": "/login",
+      "description": "User login page",
+      "protected": false
+    },
+    {
+      "name": "RegisterPage",
+      "path": "/register",
+      "description": "User registration page",
+      "protected": false
+    },
+    {
+      "name": "DashboardPage",
+      "path": "/dashboard",
+      "description": "Main dashboard with overview",
+      "protected": true
+    },
+    {
+      "name": "ClassesListPage",
+      "path": "/classes",
+      "description": "List all classes",
+      "protected": true
+    },
+    {
+      "name": "ClassDetailPage",
+      "path": "/classes/:id",
+      "description": "View class details",
+      "protected": true
+    },
+    {
+      "name": "AttendanceMarkingPage",
+      "path": "/attendance/mark",
+      "description": "Mark attendance for a class",
+      "protected": true
+    },
+    {
+      "name": "AttendanceReportsPage",
+      "path": "/reports",
+      "description": "View and generate attendance reports",
+      "protected": true
+    },
+    {
+      "name": "StudentProfilePage",
+      "path": "/students/:id",
+      "description": "View student profile and attendance",
+      "protected": true
+    }
+  ],
+  "testPlan": {
+    "strategy": {
+      "approach": "Test-Driven Development (TDD) encouraged",
+      "pyramid": {
+        "unit": "70% - Fast, isolated tests",
+        "integration": "20% - Component interaction tests",
+        "e2e": "10% - Critical user flow tests"
+      }
+    }
+  },
+  "deploymentPlan": {
+    "platforms": {
+      "frontend": {
+        "platform": "Vercel"
+      },
+      "backend": {
+        "platform": "Railway / Render"
+      },
+      "database": {
+        "platform": "Railway PostgreSQL / Supabase"
+      }
+    }
+  },
+  "githubIssues": [
+    {
+      "number": 1,
+      "title": "Project Setup and Configuration",
+      "description": "Initialize the project with proper structure and configuration files.",
+      "priority": "Critical",
+      "labels": ["setup", "infrastructure"],
+      "affectedModule": "Project Setup"
+    },
+    {
+      "number": 2,
+      "title": "Database Schema Implementation",
+      "description": "Set up database and implement the complete schema with 6 tables.",
+      "priority": "Critical",
+      "labels": ["database", "backend"],
+      "affectedModule": "Database"
+    },
+    {
+      "number": 3,
+      "title": "User Authentication System",
+      "description": "Implement complete user authentication system with JWT.",
+      "priority": "Critical",
+      "labels": ["authentication", "backend", "security"],
+      "affectedModule": "Authentication"
+    },
+    {
+      "number": 4,
+      "title": "Class Management API",
+      "description": "Implement API endpoints for class management (CRUD operations).",
+      "priority": "High",
+      "labels": ["backend", "api"],
+      "affectedModule": "Backend API - Classes"
+    },
+    {
+      "number": 5,
+      "title": "Attendance Marking System",
+      "description": "Implement attendance marking functionality for teachers.",
+      "priority": "High",
+      "labels": ["backend", "api", "core-feature"],
+      "affectedModule": "Backend API - Attendance"
+    },
+    {
+      "number": 6,
+      "title": "Report Generation and CSV Export",
+      "description": "Implement report generation and CSV export functionality.",
+      "priority": "High",
+      "labels": ["backend", "api", "reports"],
+      "affectedModule": "Backend API - Reports"
+    },
+    {
+      "number": 7,
+      "title": "Admin Dashboard UI",
+      "description": "Build admin dashboard with statistics and management features.",
+      "priority": "High",
+      "labels": ["frontend", "ui", "dashboard"],
+      "affectedModule": "Frontend - Admin"
+    },
+    {
+      "number": 8,
+      "title": "Teacher Dashboard and Attendance Marking UI",
+      "description": "Build teacher dashboard with class management and attendance marking.",
+      "priority": "High",
+      "labels": ["frontend", "ui", "teacher"],
+      "affectedModule": "Frontend - Teacher"
+    },
+    {
+      "number": 9,
+      "title": "Student Dashboard UI",
+      "description": "Build student dashboard to view attendance records.",
+      "priority": "Medium",
+      "labels": ["frontend", "ui", "student"],
+      "affectedModule": "Frontend - Student"
+    },
+    {
+      "number": 10,
+      "title": "Reusable UI Components Library",
+      "description": "Create a library of reusable UI components.",
+      "priority": "High",
+      "labels": ["frontend", "ui", "components"],
+      "affectedModule": "Frontend Components"
+    },
+    {
+      "number": 11,
+      "title": "Comprehensive Test Suite",
+      "description": "Implement comprehensive testing across the application.",
+      "priority": "High",
+      "labels": ["testing", "quality"],
+      "affectedModule": "Testing"
+    },
+    {
+      "number": 12,
+      "title": "Project Documentation",
+      "description": "Create comprehensive project documentation.",
+      "priority": "Medium",
+      "labels": ["documentation"],
+      "affectedModule": "Documentation"
+    },
+    {
+      "number": 13,
+      "title": "Production Deployment",
+      "description": "Deploy the application to production.",
+      "priority": "High",
+      "labels": ["deployment", "devops"],
+      "affectedModule": "Deployment"
+    },
+    {
+      "number": 14,
+      "title": "Security Hardening",
+      "description": "Implement security best practices.",
+      "priority": "High",
+      "labels": ["security", "backend"],
+      "affectedModule": "Security"
+    },
+    {
+      "number": 15,
+      "title": "Performance Optimization",
+      "description": "Optimize application performance.",
+      "priority": "Medium",
+      "labels": ["performance", "optimization"],
+      "affectedModule": "Performance"
+    }
+  ],
+  "bobBuildPrompt": "# IBM Bob Build Prompt: Smart Attendance Management System\n\nBuild a complete smart attendance management system for colleges with role-based dashboards (Admin, Teacher, Student), attendance marking, reporting, and CSV export capabilities.\n\n## Tech Stack\n- Frontend: React + Vite + Tailwind CSS\n- Backend: Node.js + Express\n- Database: SQLite\n- Authentication: JWT\n\n## Key Features\n1. User authentication with role-based access (Admin, Teacher, Student)\n2. Class management (CRUD operations)\n3. Student enrollment management\n4. Attendance marking by teachers\n5. Attendance reports with date range filtering\n6. CSV export functionality\n7. Dashboard for each user role\n8. Responsive design\n\n## Database Schema (6 tables)\n1. users - User accounts with roles\n2. classes - Course/class information\n3. students - Student details\n4. class_enrollments - Student-class relationships\n5. attendance_records - Daily attendance data\n6. attendance_reports - Generated reports\n\n## Implementation Priority\n1. Set up project structure\n2. Implement authentication system\n3. Build database schema\n4. Create API endpoints\n5. Build frontend dashboards\n6. Implement attendance marking\n7. Add reporting and CSV export\n8. Testing and deployment\n\nPlease build this application following best practices for security, performance, and code quality.",
+  "createdAt": "2026-05-16T07:51:00.000Z"
+}
