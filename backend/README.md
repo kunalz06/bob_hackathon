@@ -49,7 +49,10 @@ backend/
 │   │   ├── frontendPlanGenerator.js
 │   │   ├── testPlanGenerator.js
 │   │   ├── deploymentPlanGenerator.js
-│   │   └── bobPromptGenerator.js
+│   │   ├── bobPromptGenerator.js
+│   │   └── githubIssuesGenerator.js
+│   ├── exporters/             # Export modules
+│   │   └── markdownExporter.js
 │   ├── utils/                 # Utilities
 │   │   ├── slugify.js
 │   │   └── validators.js
@@ -253,12 +256,86 @@ Get a specific blueprint by ID.
 
 **GET** `/api/blueprints/:id/export/markdown`
 
-Export a blueprint as a Markdown file.
+Export a blueprint as a professional Markdown document. The file is automatically saved to the `exports/` directory and returned as a downloadable file.
 
-**Response:**
-- Content-Type: `text/markdown`
-- Content-Disposition: `attachment; filename="project-slug-blueprint.md"`
-- Body: Markdown formatted blueprint
+**Path Parameters:**
+- `id` (required): Blueprint project ID
+
+**Response Headers:**
+- `Content-Type`: `text/markdown; charset=utf-8`
+- `Content-Disposition`: `attachment; filename="{slug}-blueprint.md"`
+
+**Response Body:**
+Comprehensive Markdown document including:
+- 📋 Project overview and metadata
+- 💡 Original idea
+- 🎯 Problem statement
+- 👥 Target users
+- 🔐 User roles and permissions
+- ✨ Features (core, MVP, advanced)
+- 📋 Non-functional requirements
+- 🛠️ Tech stack details
+- 🏗️ Architecture and components
+- 🗄️ Database schema with tables
+- 🌐 API routes and endpoints
+- 📱 Frontend pages and structure
+- 🧪 Test plan and strategy
+- 🚀 Deployment plan
+- 📋 GitHub issues
+- 🤖 IBM Bob build prompt
+
+**File Storage:**
+Exported files are saved to: `exports/{projectId}/{slug}-blueprint-{timestamp}.md`
+
+**Example Request:**
+```bash
+curl -X GET http://localhost:3001/api/blueprints/abc-123/export/markdown \
+  -o my-blueprint.md
+```
+
+**Example Response:**
+```markdown
+# Task Management App
+
+> **Blueprint Document**
+
+A comprehensive task management application...
+
+**Created:** January 1, 2024 at 12:00 PM
+**Project ID:** abc-123
+**Status:** Generated
+
+---
+
+## 💡 Original Idea
+
+A task management app for developers with GitHub integration...
+
+[... full markdown content ...]
+```
+
+**Error Response (404 Not Found):**
+```json
+{
+  "success": false,
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "Blueprint not found"
+  }
+}
+```
+
+**Error Response (500 Internal Server Error):**
+```json
+{
+  "success": false,
+  "error": {
+    "code": "EXPORT_ERROR",
+    "message": "Failed to export blueprint",
+    "details": "Error details here"
+  }
+}
+```
 
 ---
 

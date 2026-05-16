@@ -1,0 +1,311 @@
+# Task Management App
+
+> **Blueprint Document**
+
+A comprehensive task management application for developers
+
+**Created:** Saturday, May 16, 2026 at 3:17 PM  
+**Project ID:** test-project-123  
+**Status:** complete
+
+---
+
+## 💡 Original Idea
+
+Build a task management app for developers
+
+## 🎯 Problem Statement
+
+Developers need a better way to manage their tasks and collaborate with team members.
+
+## 👥 Target Users
+
+- Developers
+- Project Managers
+
+## 🔐 User Roles
+
+
+### Admin
+
+System administrator with full access
+
+**Permissions:**
+- Manage users
+- Configure system
+- View all data
+
+
+### Developer
+
+Regular user with task management access
+
+**Permissions:**
+- Create tasks
+- Update tasks
+- View team tasks
+
+
+## ✨ Features
+
+### Core Features
+
+
+**F1 User Authentication** (High Priority)
+
+Secure login and registration system
+
+
+**F2 Task Management** (High Priority)
+
+Create, update, and track tasks
+
+### MVP Features
+
+
+- **Basic Task CRUD** (High Priority): Create, read, update, delete tasks
+
+### Advanced Features
+
+
+- **Real-time Collaboration** (Medium Priority): Live updates and notifications
+
+
+## 📋 Non-Functional Requirements
+
+
+### Performance
+
+- Page load < 2s
+- API response < 200ms
+
+
+### Security
+
+- HTTPS only
+- JWT authentication
+- Input validation
+
+
+### Usability
+
+- Responsive design
+- Intuitive UI
+
+
+## 🛠️ Tech Stack
+
+### Frontend
+
+- **framework:** React 18
+- **styling:** Tailwind CSS
+- **stateManagement:** Redux Toolkit
+
+### Backend
+
+- **runtime:** Node.js 18
+- **framework:** Express.js
+
+### Database
+
+- **primary:** PostgreSQL
+- **orm:** Prisma
+
+## 🏗️ Architecture
+
+### Overview
+
+Modern three-tier architecture with clear separation of concerns
+
+### Architecture Pattern
+
+MVC (Model-View-Controller)
+
+### Components
+
+
+**Frontend**
+
+React-based single page application
+
+- **Technologies:** React, Tailwind CSS, Redux
+
+**Responsibilities:**
+- User interface
+- State management
+- API communication
+
+### Architecture Diagram
+
+```
+┌─────────────┐
+│   Frontend  │
+└──────┬──────┘
+       │
+┌──────▼──────┐
+│   Backend   │
+└──────┬──────┘
+       │
+┌──────▼──────┐
+│  Database   │
+└─────────────┘
+```
+
+
+## 🗄️ Database Schema
+
+**Database:** PostgreSQL 15
+
+### Tables
+
+
+#### users
+
+User accounts
+
+**Columns:**
+
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | INTEGER | PRIMARY KEY |
+| email | VARCHAR(255) | UNIQUE, NOT NULL |
+| password_hash | VARCHAR(255) | NOT NULL |
+
+**Indexes:**
+- idx_users_email (UNIQUE)
+
+
+## 🌐 API Routes
+
+**Base URL:** /api
+**Authentication:** JWT
+
+### Endpoints
+
+| Method | Path | Description | Auth Required |
+|--------|------|-------------|---------------|
+| POST | /api/auth/login | User login | 🌐 No |
+| GET | /api/tasks | Get all tasks | 🔒 Yes |
+
+## 📱 Frontend Pages
+
+**Framework:** React 18
+
+
+### LoginPage
+
+- **Route:** /login
+- **Protected:** 🌐 No
+- **Description:** User login page
+- **Components:** LoginForm, Logo
+
+
+### DashboardPage
+
+- **Route:** /dashboard
+- **Protected:** 🔒 Yes
+- **Description:** Main dashboard
+- **Components:** TaskList, Sidebar, Header
+
+
+## 🧪 Test Plan
+
+### Testing Strategy
+
+**Approach:** Test-Driven Development
+
+**Test Pyramid:**
+- **unit:** 70% - Fast, isolated tests
+- **integration:** 20% - Component interaction
+- **e2e:** 10% - Critical user flows
+
+### Unit Tests
+
+- **Framework:** Jest
+- **Total Tests:** 50
+- **Coverage Target:** 80%
+
+### Integration Tests
+
+- **Framework:** Supertest
+- **Total Tests:** 20
+
+### End-to-End Tests
+
+- **Framework:** Playwright
+- **Total Tests:** 10
+
+
+## 🚀 Deployment Plan
+
+### Deployment Platforms
+
+**Frontend:** Vercel
+**Backend:** Railway
+**Database:** Supabase
+
+### Deployment Steps
+
+
+#### Pre-deployment
+
+
+**Environment Setup**
+
+- [ ] Configure environment variables
+- [ ] Set up CI/CD pipeline
+
+
+
+## 📋 GitHub Issues
+
+Total Issues: 2
+
+### Critical Priority
+
+
+#### #1: Setup Project Structure
+
+Initialize project with proper folder structure
+
+- **Labels:** setup, infrastructure
+- **Module:** Project Setup
+### High Priority
+
+
+#### #2: Implement Authentication
+
+Add user login and registration
+
+- **Labels:** backend, security
+- **Module:** Authentication
+
+
+## 🤖 IBM Bob Build Prompt
+
+```
+Build a task management app for developers with authentication, task CRUD, and team collaboration features. Use React + Node.js + PostgreSQL.
+```
+
+---
+
+**How to use this prompt:**
+1. Copy the entire prompt above
+2. Paste it into IBM Bob
+3. Let Bob guide you through the implementation
+4. Document the session in `bob_sessions/` directory
+
+---
+
+## 📊 Metadata
+
+- **Project ID:** test-project-123
+- **Created:** 5/16/2026, 3:17:36 PM
+- **Updated:** 5/16/2026, 3:17:36 PM
+- **Generation Time:** 5000ms
+- **Version:** 1.0.0
+
+---
+
+*Generated by **BobForge** - AI App Factory*  
+*Powered by IBM Bob for the IBM Bob Hackathon*
