@@ -491,10 +491,44 @@ All endpoints return structured error responses:
 
 ### Testing
 
-Run tests (when implemented):
+The backend includes comprehensive automated tests using Jest and Supertest.
+
+**Run all tests:**
 ```bash
 npm test
 ```
+
+**Run tests in watch mode:**
+```bash
+npm test:watch
+```
+
+**Run tests with coverage:**
+```bash
+npm test
+```
+
+**Test Coverage:**
+The test suite includes:
+- ✅ Health route tests
+- ✅ Blueprint generation tests (validation, generation, storage)
+- ✅ Markdown export tests (404 handling, content validation, IBM Bob prompt inclusion)
+- ✅ Artifact tracker tests (CRUD operations, validation)
+
+**Test Files:**
+- `__tests__/health.test.js` - Health endpoint tests
+- `__tests__/blueprint.test.js` - Blueprint generation and retrieval tests
+- `__tests__/markdown-export.test.js` - Markdown export functionality tests
+- `__tests__/artifact.test.js` - Artifact tracker tests
+
+**Coverage Thresholds:**
+- Branches: 70%
+- Functions: 70%
+- Lines: 70%
+- Statements: 70%
+
+**Test Isolation:**
+Tests use backup/restore mechanisms to avoid corrupting existing data. Test data is automatically cleaned up after test runs.
 
 ### Code Style
 

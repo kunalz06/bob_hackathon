@@ -49,7 +49,7 @@ async function readBlueprints() {
  */
 async function readBlueprintById(id) {
   const blueprints = await readBlueprints();
-  return blueprints.find(bp => bp.projectId === id) || null;
+  return blueprints.find(bp => bp.id === id || bp.projectId === id) || null;
 }
 
 /**

@@ -54,14 +54,14 @@ Build a complete, production-ready ${input.title} application following the spec
 ## 1. Product Requirements
 
 ### Features to Implement
-${input.prd.features.map((f, i) => `${i + 1}. **${f.name}** (Priority: ${f.priority})
+${(input.prd.features || []).map((f, i) => `${i + 1}. **${f.name}** (Priority: ${f.priority})
    - ${f.description}
-   - User Story: ${f.userStories[0]}
+   - User Story: ${(f.userStories || [])[0] || 'N/A'}
    - Acceptance Criteria:
-${f.acceptanceCriteria.map(ac => `     - ${ac}`).join('\n')}`).join('\n\n')}
+${(f.acceptanceCriteria || []).map(ac => `     - ${ac}`).join('\n')}`).join('\n\n')}
 
 ### Success Metrics
-${input.prd.successMetrics.map(m => `- ${m}`).join('\n')}
+${(input.prd.successMetrics || []).map(m => `- ${m}`).join('\n')}
 
 ---
 
@@ -297,10 +297,10 @@ ${input.frontend.performance.optimizations.slice(0, 3).map(opt => `- ${opt}`).jo
 ## Success Criteria
 
 The application is complete when:
-- ✅ All ${input.prd.features.length} features are implemented
-- ✅ All ${input.api.endpoints.length} API endpoints are working
-- ✅ All ${input.frontend.pages.length} pages are built and functional
-- ✅ Test coverage meets ${input.tests.unitTests.coverage.target} target
+- ✅ All ${(input.prd.features || []).length} features are implemented
+- ✅ All ${(input.api.endpoints || []).length} API endpoints are working
+- ✅ All ${(input.frontend.pages || []).length} pages are built and functional
+- ✅ Test coverage meets ${input.tests?.unitTests?.coverage?.target || '80%'} target
 - ✅ Application is deployed and accessible
 - ✅ Documentation is complete and clear
 
@@ -323,10 +323,10 @@ This is a complete blueprint for building ${input.title}. Follow the specificati
     prompt,
     metadata: {
       generatedAt: new Date().toISOString(),
-      totalFeatures: input.prd.features.length,
-      totalEndpoints: input.api.endpoints.length,
-      totalPages: input.frontend.pages.length,
-      totalComponents: input.frontend.components.length,
+      totalFeatures: (input.prd.features || []).length,
+      totalEndpoints: (input.api.endpoints || []).length,
+      totalPages: (input.frontend.pages || []).length,
+      totalComponents: (input.frontend.components || []).length,
       estimatedComplexity: 'Medium',
       estimatedTimeline: '2-3 weeks'
     },

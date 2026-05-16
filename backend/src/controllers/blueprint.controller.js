@@ -27,7 +27,7 @@ async function generateBlueprint(req, res) {
 
     res.status(201).json({
       success: true,
-      projectId: blueprint.projectId,
+      projectId: blueprint.id,
       blueprint
     });
   } catch (error) {

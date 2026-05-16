@@ -15,16 +15,17 @@ router.post('/generate', blueprintController.generateBlueprint);
 router.get('/', blueprintController.getAllBlueprints);
 
 /**
+ * GET /api/blueprints/:id/export/markdown
+ * Export blueprint as Markdown
+ * NOTE: This must come BEFORE /:id route to avoid route collision
+ */
+router.get('/:id/export/markdown', blueprintController.exportBlueprintMarkdown);
+
+/**
  * GET /api/blueprints/:id
  * Get blueprint by ID
  */
 router.get('/:id', blueprintController.getBlueprintById);
-
-/**
- * GET /api/blueprints/:id/export/markdown
- * Export blueprint as Markdown
- */
-router.get('/:id/export/markdown', blueprintController.exportBlueprintMarkdown);
 
 module.exports = router;
 
