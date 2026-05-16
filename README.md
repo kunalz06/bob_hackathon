@@ -227,6 +227,60 @@ The backend will start on `http://localhost:3001`
 
 5. **Start the development server:**
    ```bash
+---
+
+## 🚀 Production Deployment
+
+BobForge is ready for production deployment with recommended platforms:
+
+### Quick Deploy
+
+**Frontend (Vercel)**:
+```bash
+cd frontend
+npm install -g vercel
+vercel --prod
+```
+
+**Backend (Render)**:
+1. Push code to GitHub
+2. Connect repository to Render
+3. Configure environment variables
+4. Deploy automatically
+
+### Deployment Platforms
+
+| Component | Platform | URL |
+|-----------|----------|-----|
+| Frontend | Vercel | `https://bobforge.vercel.app` |
+| Backend | Render | `https://bobforge-api.onrender.com` |
+
+### Environment Variables
+
+**Frontend (.env.production)**:
+```env
+VITE_API_BASE_URL=https://your-backend-url.onrender.com
+```
+
+**Backend (Render Environment)**:
+```env
+PORT=3001
+NODE_ENV=production
+CORS_ORIGIN=https://your-frontend-url.vercel.app
+DATA_DIR=./src/data
+```
+
+### Deployment Checklist
+
+- [ ] Update `VITE_API_BASE_URL` with backend URL
+- [ ] Update `CORS_ORIGIN` with frontend URL
+- [ ] Verify no secrets in repository
+- [ ] Test health endpoint: `/api/health`
+- [ ] Test blueprint generation
+- [ ] Monitor logs for errors
+
+**For detailed deployment instructions, see [docs/deployment.md](docs/deployment.md)**
+
    npm run dev
    ```
 
