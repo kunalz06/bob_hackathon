@@ -227,6 +227,25 @@ The backend will start on `http://localhost:3001`
 
 5. **Start the development server:**
    ```bash
+   npm run dev
+   ```
+
+The frontend will start on `http://localhost:5173`
+
+### Running Tests
+
+**Backend tests:**
+```bash
+cd backend
+npm test
+```
+
+**Test coverage:**
+```bash
+cd backend
+npm test -- --coverage
+```
+
 ---
 
 ## 🚀 Production Deployment
@@ -281,12 +300,9 @@ DATA_DIR=./src/data
 
 **For detailed deployment instructions, see [docs/deployment.md](docs/deployment.md)**
 
-   npm run dev
-   ```
+---
 
-The frontend will start on `http://localhost:5173`
-
-### Running Tests
+## 🎯 How to Run Sample Generated App
 
 **Backend tests:**
 ```bash

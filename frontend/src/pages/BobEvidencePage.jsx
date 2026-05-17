@@ -97,9 +97,18 @@ function BobEvidencePage() {
         {/* About Section */}
         <SectionCard title="About This Evidence" className="mb-8">
           <div className="prose max-w-none">
+            <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-4">
+              <h4 className="font-semibold text-gray-800 mb-2">📝 Session Reports Location</h4>
+              <p className="text-gray-700 text-sm">
+                Detailed session reports documenting IBM Bob's contributions are stored in the <code className="bg-yellow-100 px-1 rounded">bob_sessions/</code> directory
+                in the project root. These timestamped reports provide concrete evidence of Bob's involvement in each development phase.
+                See <code className="bg-yellow-100 px-1 rounded">bob_sessions/README.md</code> for the expected format and structure.
+              </p>
+            </div>
+            
             <p className="text-gray-700 mb-4">
-              BobForge was built in collaboration with <strong>IBM Bob</strong>, demonstrating Bob's capabilities 
-              as a full Software Development Life Cycle (SDLC) partner. This dashboard tracks all the stages 
+              BobForge was built in collaboration with <strong>IBM Bob</strong>, demonstrating Bob's capabilities
+              as a full Software Development Life Cycle (SDLC) partner. This dashboard tracks all the stages
               where Bob contributed to the development process.
             </p>
             

@@ -24,11 +24,11 @@ cp .env.example .env
 npm start
 ```
 
-✅ Backend should now be running on `http://localhost:3000`
+✅ Backend should now be running on `http://localhost:3001`
 
 You should see:
 ```
-Server running on port 3000
+Server running on port 3001
 ```
 
 ## Step 2: Start the Frontend (Terminal 2)
@@ -87,7 +87,7 @@ and generates attendance reports for teachers and administrators.
 ## Troubleshooting
 
 ### Backend won't start
-- Check if port 3000 is already in use
+- Check if port 3001 is already in use
 - Verify Node.js is installed: `node --version`
 - Delete `node_modules` and run `npm install` again
 
@@ -97,8 +97,8 @@ and generates attendance reports for teachers and administrators.
 - Delete `node_modules` and run `npm install` again
 
 ### Can't connect to backend
-- Verify backend is running on port 3000
-- Check `.env` file in frontend has: `VITE_API_BASE_URL=http://localhost:3000`
+- Verify backend is running on port 3001
+- Check `.env` file in frontend has: `VITE_API_BASE_URL=http://localhost:3001`
 - Restart both servers
 
 ### Blueprint generation fails
@@ -118,7 +118,7 @@ and generates attendance reports for teachers and administrators.
 
 ```
 bobforge/
-├── backend/          # Express API (port 3000)
+├── backend/          # Express API (port 3001)
 │   ├── src/
 │   │   ├── generators/   # Blueprint generators
 │   │   ├── routes/       # API endpoints
